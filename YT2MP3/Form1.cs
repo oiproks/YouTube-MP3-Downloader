@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using HtmlAgilityPack;
@@ -134,21 +135,24 @@ namespace YT2MP3
 
         private void btnConvert_Click(object sender, EventArgs e)
         {
-            lblUpdate.Text = "Converting and downloading...";
+            lblUpdate.Visible = true;
+            lblUpdate.Text = "Converting and downloading..."; 
+
             string url = txtURL.Text.ToString();
 
             txtURL.Text = string.Empty;
             btnConvert.Enabled = false;
             btnConvert.BackgroundImage = Resources.play_disabled;
             flpDestination.Enabled = false;
-            
+
             string executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe");
 
-            ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --extract-audio --audio-format mp3 --audio-quality 0 -o \"{1}\" {2}", executablePath, destinationPath, url));
-
-            procStartInfo.RedirectStandardOutput = true;
-            procStartInfo.UseShellExecute = false;
-            procStartInfo.CreateNoWindow = true;
+            ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --extract-audio --audio-format mp3 --audio-quality 0 -o \"{1}\" {2}", executablePath, destinationPath, url))
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
 
             using (Process process = new Process())
             {
@@ -158,11 +162,13 @@ namespace YT2MP3
                 process.WaitForExit();
 
                 string result = process.StandardOutput.ReadToEnd();
-                Console.WriteLine(result);
-            }
 
-            lblUpdate.Text = "Conversion complete. File downloaded.";
-            flpDestination.Enabled = true;
+                this.Invoke(new Action(() =>
+                {
+                    lblUpdate.Text = "Conversion complete. File downloaded.";
+                    flpDestination.Enabled = true;
+                }));
+            }
         }
 
         private void flpDestination_MouseClick(object sender, MouseEventArgs e)
