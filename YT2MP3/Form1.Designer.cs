@@ -37,6 +37,7 @@
             this.btnConvert = new System.Windows.Forms.Button();
             this.progBar = new System.Windows.Forms.ProgressBar();
             this.lblUpdate = new System.Windows.Forms.Label();
+            this.lstBox = new System.Windows.Forms.ListBox();
             this.flpDestination.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -47,6 +48,7 @@
             this.txtURL.Size = new System.Drawing.Size(191, 20);
             this.txtURL.TabIndex = 2;
             this.txtURL.TextChanged += new System.EventHandler(this.txtURL_TextChanged);
+            this.txtURL.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtURL_KeyDown);
             // 
             // lblUrl
             // 
@@ -74,7 +76,7 @@
             // 
             this.flpDestination.Controls.Add(this.btnSelectFolder);
             this.flpDestination.Controls.Add(this.lblDestination);
-            this.flpDestination.Location = new System.Drawing.Point(12, 64);
+            this.flpDestination.Location = new System.Drawing.Point(12, 224);
             this.flpDestination.Name = "flpDestination";
             this.flpDestination.Size = new System.Drawing.Size(186, 40);
             this.flpDestination.TabIndex = 6;
@@ -105,7 +107,7 @@
             this.btnConvert.Enabled = false;
             this.btnConvert.FlatAppearance.BorderSize = 0;
             this.btnConvert.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnConvert.Location = new System.Drawing.Point(203, 68);
+            this.btnConvert.Location = new System.Drawing.Point(203, 228);
             this.btnConvert.Name = "btnConvert";
             this.btnConvert.Size = new System.Drawing.Size(35, 35);
             this.btnConvert.TabIndex = 0;
@@ -115,7 +117,7 @@
             // 
             // progBar
             // 
-            this.progBar.Location = new System.Drawing.Point(9, 38);
+            this.progBar.Location = new System.Drawing.Point(9, 195);
             this.progBar.Margin = new System.Windows.Forms.Padding(0);
             this.progBar.Name = "progBar";
             this.progBar.Size = new System.Drawing.Size(232, 23);
@@ -126,19 +128,29 @@
             // 
             this.lblUpdate.BackColor = System.Drawing.Color.Transparent;
             this.lblUpdate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUpdate.Location = new System.Drawing.Point(9, 38);
+            this.lblUpdate.Location = new System.Drawing.Point(9, 195);
             this.lblUpdate.Margin = new System.Windows.Forms.Padding(0);
             this.lblUpdate.Name = "lblUpdate";
             this.lblUpdate.Size = new System.Drawing.Size(229, 22);
             this.lblUpdate.TabIndex = 9;
             this.lblUpdate.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lblUpdate.Visible = false;
+            // 
+            // lstBox
+            // 
+            this.lstBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lstBox.FormattingEnabled = true;
+            this.lstBox.HorizontalScrollbar = true;
+            this.lstBox.Location = new System.Drawing.Point(12, 32);
+            this.lstBox.Name = "lstBox";
+            this.lstBox.Size = new System.Drawing.Size(226, 160);
+            this.lstBox.TabIndex = 11;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(250, 111);
+            this.ClientSize = new System.Drawing.Size(250, 271);
+            this.Controls.Add(this.lstBox);
             this.Controls.Add(this.lblUpdate);
             this.Controls.Add(this.progBar);
             this.Controls.Add(this.flpDestination);
@@ -150,6 +162,7 @@
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "YT 2 MP3";
+            this.TopMost = true;
             this.Shown += new System.EventHandler(this.Form1_Load);
             this.flpDestination.ResumeLayout(false);
             this.flpDestination.PerformLayout();
@@ -168,6 +181,7 @@
         private System.Windows.Forms.FlowLayoutPanel flpDestination;
         private System.Windows.Forms.ProgressBar progBar;
         private System.Windows.Forms.Label lblUpdate;
+        private System.Windows.Forms.ListBox lstBox;
     }
 }
 

@@ -10,18 +10,37 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Forms;
 using HtmlAgilityPack;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using YT2MP3.Properties;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Upload;
+using Google.Apis.Util.Store;
+using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
 
 namespace YT2MP3
 {
     public partial class Form1 : Form
     {
         string destinationPath;
+        List<string> urlList;
+        List<string> workingList;
+        int listCount = 0;
+        int count = 1;
+        bool converting = false;
 
         public Form1()
         {
@@ -33,6 +52,35 @@ namespace YT2MP3
             CheckUpdate();
 
             txtURL.Focus();
+
+            urlList = new List<string>();
+            workingList = new List<string>();
+        }
+
+        private async Task<string> GetTitle(string url)
+        {
+            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            {
+                ApiKey = "AIzaSyCQTeygLLYWKCj4zjpqQBQSc1I_6jN_ipE",
+                ApplicationName = this.GetType().ToString()
+            });
+
+            var searchListRequest = youtubeService.Search.List("snippet");
+            searchListRequest.Q = url; 
+            searchListRequest.MaxResults = 1;
+
+            var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //foreach (var searchResult in searchListResponse.Items)
+            //{
+            //    switch (searchResult.Id.Kind)
+            //    {
+            //        case "youtube#video":
+            //            return searchResult.Snippet.Title;
+            //    }
+            //}
+
+            return searchListResponse.Items[0].Snippet.Title;
         }
 
         private async void CheckUpdate()
@@ -98,7 +146,7 @@ namespace YT2MP3
                 }));
             }
         }
-
+   
         void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             progBar.Value = e.ProgressPercentage;
@@ -125,7 +173,7 @@ namespace YT2MP3
 
                 destinationPath = Path.Combine(destinationPath, "%(title)s.%(ext)s");
 
-                if (!string.IsNullOrEmpty(txtURL.Text.ToString()))
+                if (urlList.Count > 0)
                 {
                     btnConvert.Enabled = true;
                     btnConvert.BackgroundImage = Resources.play;
@@ -135,40 +183,91 @@ namespace YT2MP3
 
         private void btnConvert_Click(object sender, EventArgs e)
         {
-            lblUpdate.Visible = true;
-            lblUpdate.Text = "Converting and downloading..."; 
-
-            string url = txtURL.Text.ToString();
-
-            txtURL.Text = string.Empty;
+            lblUpdate.Text = string.Format("Converting and downloading: 0/{0}", listCount);
             btnConvert.Enabled = false;
             btnConvert.BackgroundImage = Resources.play_disabled;
             flpDestination.Enabled = false;
 
-            string executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe");
+            foreach (string url in urlList)
+                workingList.Add(url);
 
-            ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --extract-audio --audio-format mp3 --audio-quality 0 -o \"{1}\" {2}", executablePath, destinationPath, url))
+            urlList.Clear();
+            
+            Thread thread = new Thread(Download);
+            thread.Start();
+        }
+
+        private void Download()
+        {
+            Thread thread;
+            while (true)
             {
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using (Process process = new Process())
-            {
-                process.StartInfo = procStartInfo;
-                process.Start();
-
-                process.WaitForExit();
-
-                string result = process.StandardOutput.ReadToEnd();
-
-                this.Invoke(new Action(() =>
+                converting = true;
+                foreach (string url in workingList)
                 {
-                    lblUpdate.Text = "Conversion complete. File downloaded.";
-                    flpDestination.Enabled = true;
-                }));
+                    thread = new Thread(new ParameterizedThreadStart(UpdateLabel));
+                    thread.Start(string.Format("Converting and downloading: {0}/{1}", count, listCount));
+
+                    string executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe");
+
+                    ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --extract-audio --audio-format mp3 --audio-quality 0 -o \"{1}\" {2}", executablePath, destinationPath, url));
+
+                    procStartInfo.RedirectStandardOutput = true;
+                    procStartInfo.UseShellExecute = false;
+                    procStartInfo.CreateNoWindow = true;
+
+                    using (Process process = new Process())
+                    {
+                        process.StartInfo = procStartInfo;
+                        process.Start();
+
+                        process.WaitForExit();
+
+                        string result = process.StandardOutput.ReadToEnd();
+                        Console.WriteLine(result);
+                    }
+
+                    count++;
+                    this.Invoke(new Action(() =>
+                    {
+                        lstBox.Items.RemoveAt(0);
+                    }));
+                }
+
+                workingList.Clear();
+
+                if (urlList.Count == 0) {
+                    break;
+                }
+                else
+                {
+                    foreach (string url in urlList)
+                        workingList.Add(url);
+                    urlList.Clear();
+                }
             }
+            converting = false;
+
+            thread = new Thread(new ParameterizedThreadStart(UpdateLabel));
+            thread.Start("Conversion complete. File downloaded.");
+
+            this.Invoke(new Action(() =>
+            {
+                btnConvert.Enabled = false;
+                btnConvert.BackgroundImage = Resources.play_disabled;
+                flpDestination.Enabled = true;
+            }));
+
+            listCount = 0;
+            count = 1;
+        }
+
+        private void UpdateLabel(object text)
+        {
+            this.Invoke(new Action(() =>
+            {
+                lblUpdate.Text = text.ToString();
+            }));
         }
 
         private void flpDestination_MouseClick(object sender, MouseEventArgs e)
@@ -179,12 +278,37 @@ namespace YT2MP3
 
         private void txtURL_TextChanged(object sender, EventArgs e)
         {
-            lblUpdate.Text = string.Empty;
-
-            if (!string.IsNullOrEmpty(txtURL.Text.ToString()) && !string.IsNullOrEmpty(destinationPath))
+            string URL = txtURL.Text.ToString();
+            if (!string.IsNullOrEmpty(URL) && (URL.Contains("youtu.be") || URL.Contains("youtube.com")))
             {
-                btnConvert.Enabled = true;
-                btnConvert.BackgroundImage = Resources.play;
+                txtURL_KeyDown(sender, new KeyEventArgs(Keys.Enter));
+            }
+        }
+
+        private async void txtURL_KeyDown(object sender, KeyEventArgs e)
+        {
+            string url = txtURL.Text.ToString();
+            if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(url))
+            {
+                string videoID = url.Substring(url.IndexOf("?v=") + 3);
+                videoID = videoID.Contains("&list") ? videoID.Substring(0, videoID.IndexOf("&list")): videoID;
+                string title = await GetTitle(videoID);
+
+                lstBox.Items.Add(HttpUtility.HtmlDecode(title));
+
+                urlList.Add(url);
+
+                listCount++;
+                if (converting) 
+                    UpdateLabel(string.Format("Converting and downloading: {0}/{1}", count, listCount));
+
+                txtURL.Text = string.Empty;
+
+                if (!btnConvert.Enabled && !string.IsNullOrEmpty(destinationPath) && !converting)
+                {
+                    btnConvert.Enabled = true;
+                    btnConvert.BackgroundImage = Resources.play;
+                }
             }
         }
     }
