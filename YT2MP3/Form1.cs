@@ -290,24 +290,30 @@ namespace YT2MP3
             string url = txtURL.Text.ToString();
             if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(url))
             {
-                string videoID = url.Substring(url.IndexOf("?v=") + 3);
-                videoID = videoID.Contains("&list") ? videoID.Substring(0, videoID.IndexOf("&list")): videoID;
-                string title = await GetTitle(videoID);
-
-                lstBox.Items.Add(HttpUtility.HtmlDecode(title));
-
-                urlList.Add(url);
-
-                listCount++;
-                if (converting) 
-                    UpdateLabel(string.Format("Converting and downloading: {0}/{1}", count, listCount));
-
-                txtURL.Text = string.Empty;
-
-                if (!btnConvert.Enabled && !string.IsNullOrEmpty(destinationPath) && !converting)
+                try
                 {
-                    btnConvert.Enabled = true;
-                    btnConvert.BackgroundImage = Resources.play;
+                    string videoID = url.Substring(url.IndexOf("?v=") + 3);
+                    videoID = videoID.Contains("&list") ? videoID.Substring(0, videoID.IndexOf("&list")) : videoID;
+                    string title = await GetTitle(videoID);
+
+                    lstBox.Items.Add(HttpUtility.HtmlDecode(title));
+
+                    urlList.Add(url);
+
+                    listCount++;
+                    if (converting)
+                        UpdateLabel(string.Format("Converting and downloading: {0}/{1}", count, listCount));
+
+                    txtURL.Text = string.Empty;
+
+                    if (!btnConvert.Enabled && !string.IsNullOrEmpty(destinationPath) && !converting)
+                    {
+                        btnConvert.Enabled = true;
+                        btnConvert.BackgroundImage = Resources.play;
+                    }
+                } catch (Exception ex)
+                {
+                    MessageBox.Show(this, "Impossible to get URL from YouTube.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
