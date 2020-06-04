@@ -36,8 +36,9 @@ namespace YT2MP3
     public partial class Form1 : Form
     {
         string destinationPath;
-        List<string> urlList;
-        List<string> workingList;
+        List<VideoList> urlList;
+        List<VideoList> workingList;
+        List<VideoList> removeList;
         int listCount = 0;
         int count = 1;
         bool converting = false;
@@ -53,36 +54,16 @@ namespace YT2MP3
 
             txtURL.Focus();
 
-            urlList = new List<string>();
-            workingList = new List<string>();
+            urlList = new List<VideoList>();
+            workingList = new List<VideoList>();
+            removeList = new List<VideoList>();
+
+            ContextMenu cm = new ContextMenu();
+            cm.MenuItems.Add(new MenuItem("Remove", RemoveItem));
+            lstBox.ContextMenu = cm;
         }
 
-        private async Task<string> GetTitle(string url)
-        {
-            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-            {
-                ApiKey = "AIzaSyCQTeygLLYWKCj4zjpqQBQSc1I_6jN_ipE",
-                ApplicationName = this.GetType().ToString()
-            });
-
-            var searchListRequest = youtubeService.Search.List("snippet");
-            searchListRequest.Q = url; 
-            searchListRequest.MaxResults = 1;
-
-            var searchListResponse = await searchListRequest.ExecuteAsync();
-
-            //foreach (var searchResult in searchListResponse.Items)
-            //{
-            //    switch (searchResult.Id.Kind)
-            //    {
-            //        case "youtube#video":
-            //            return searchResult.Snippet.Title;
-            //    }
-            //}
-
-            return searchListResponse.Items[0].Snippet.Title;
-        }
-
+        #region Update
         private async void CheckUpdate()
         {
             try
@@ -129,8 +110,6 @@ namespace YT2MP3
                         }
                         break;
                     }
-
-                    
                 }
             }
             catch (Exception ex)
@@ -158,7 +137,9 @@ namespace YT2MP3
             lblUpdate.Visible = true;
             lblUpdate.Text = "The program has been updated.";
         }
+        #endregion
 
+        #region Interface Interactions
         private void btnSelectFolder_Click(object sender, EventArgs e)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
@@ -181,6 +162,12 @@ namespace YT2MP3
             }
         }
 
+        private void flpDestination_MouseClick(object sender, MouseEventArgs e)
+        {
+            lblUpdate.Text = string.Empty;
+            btnSelectFolder_Click(sender, e);
+        }
+
         private void btnConvert_Click(object sender, EventArgs e)
         {
             lblUpdate.Text = string.Format("Converting and downloading: 0/{0}", listCount);
@@ -188,7 +175,7 @@ namespace YT2MP3
             btnConvert.BackgroundImage = Resources.play_disabled;
             flpDestination.Enabled = false;
 
-            foreach (string url in urlList)
+            foreach (VideoList url in urlList)
                 workingList.Add(url);
 
             urlList.Clear();
@@ -197,20 +184,73 @@ namespace YT2MP3
             thread.Start();
         }
 
+        private void txtURL_TextChanged(object sender, EventArgs e)
+        {
+            string URL = txtURL.Text.ToString();
+            if (!string.IsNullOrEmpty(URL) && (URL.Contains("youtu.be") || URL.Contains("youtube.com")))
+            {
+                txtURL_KeyDown(sender, new KeyEventArgs(Keys.Enter));
+            }
+        }
+
+        private async void txtURL_KeyDown(object sender, KeyEventArgs e)
+        {
+            string url = txtURL.Text.ToString();
+            if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(url))
+            {
+                txtURL.Enabled = false;
+                try
+                {
+                    string videoID = url.Substring(url.IndexOf("?v=") + 3);
+                    videoID = videoID.Contains("&list") ? videoID.Substring(0, videoID.IndexOf("&list")) : videoID;
+                    string title = await GetTitle(videoID);
+
+                    lstBox.Items.Add(HttpUtility.HtmlDecode(title));
+
+                    urlList.Add(new VideoList(HttpUtility.HtmlDecode(title), url));
+
+                    listCount++;
+                    if (converting)
+                        UpdateLabel(string.Format("Converting and downloading: {0}/{1}", count, listCount));
+
+                    txtURL.Text = string.Empty;
+
+                    if (!btnConvert.Enabled && !string.IsNullOrEmpty(destinationPath) && !converting)
+                    {
+                        btnConvert.Enabled = true;
+                        btnConvert.BackgroundImage = Resources.play;
+                    }
+                } catch (Exception ex)
+                {
+                    MessageBox.Show(this, "Impossible to get URL from YouTube.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            txtURL.Enabled = true;
+            txtURL.Focus();
+        }
+        #endregion
+
+        #region Download Management
         private void Download()
         {
             Thread thread;
             while (true)
             {
                 converting = true;
-                foreach (string url in workingList)
+                foreach (VideoList vl in workingList)
                 {
+                    if (removeList.FindAll(x => x.Title == vl.Title).Count > 0)
+                    {
+                        removeList.Remove(removeList.Find(x => x.Title == vl.Title));
+                        continue;
+                    }
+
                     thread = new Thread(new ParameterizedThreadStart(UpdateLabel));
                     thread.Start(string.Format("Converting and downloading: {0}/{1}", count, listCount));
 
                     string executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe");
 
-                    ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --extract-audio --audio-format mp3 --audio-quality 0 -o \"{1}\" {2}", executablePath, destinationPath, url));
+                    ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --extract-audio --audio-format mp3 --audio-quality 0 -o \"{1}\" {2}", executablePath, destinationPath, vl.URL));
 
                     procStartInfo.RedirectStandardOutput = true;
                     procStartInfo.UseShellExecute = false;
@@ -241,8 +281,9 @@ namespace YT2MP3
                 }
                 else
                 {
-                    foreach (string url in urlList)
+                    foreach (VideoList url in urlList)
                         workingList.Add(url);
+
                     urlList.Clear();
                 }
             }
@@ -262,6 +303,24 @@ namespace YT2MP3
             count = 1;
         }
 
+        private async Task<string> GetTitle(string url)
+        {
+            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            {
+                ApiKey = "AIzaSyCQTeygLLYWKCj4zjpqQBQSc1I_6jN_ipE",
+                ApplicationName = this.GetType().ToString()
+            });
+
+            var searchListRequest = youtubeService.Search.List("snippet");
+            searchListRequest.Q = url; 
+            searchListRequest.MaxResults = 1;
+
+            var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            return searchListResponse.Items[0].Snippet.Title;
+        }
+        #endregion
+
         private void UpdateLabel(object text)
         {
             this.Invoke(new Action(() =>
@@ -270,52 +329,24 @@ namespace YT2MP3
             }));
         }
 
-        private void flpDestination_MouseClick(object sender, MouseEventArgs e)
+        #region Remove From List
+        private void lstBox_MouseDown(object sender, MouseEventArgs e)
         {
-            lblUpdate.Text = string.Empty;
-            btnSelectFolder_Click(sender, e);
+            lstBox.SelectedIndex = lstBox.IndexFromPoint(e.X, e.Y);
         }
 
-        private void txtURL_TextChanged(object sender, EventArgs e)
+        private void RemoveItem(Object sender, System.EventArgs e)
         {
-            string URL = txtURL.Text.ToString();
-            if (!string.IsNullOrEmpty(URL) && (URL.Contains("youtu.be") || URL.Contains("youtube.com")))
+            if (lstBox.SelectedIndex > 0)
             {
-                txtURL_KeyDown(sender, new KeyEventArgs(Keys.Enter));
+                int selectedIndex = lstBox.SelectedIndex;
+                removeList.Add(new VideoList(lstBox.Items[selectedIndex].ToString(), ""));
+                lstBox.Items.Remove(lstBox.Items[selectedIndex]);
+                listCount--;
+                if (converting)
+                    UpdateLabel(string.Format("Converting and downloading: {0}/{1}", count, listCount));
             }
         }
-
-        private async void txtURL_KeyDown(object sender, KeyEventArgs e)
-        {
-            string url = txtURL.Text.ToString();
-            if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(url))
-            {
-                try
-                {
-                    string videoID = url.Substring(url.IndexOf("?v=") + 3);
-                    videoID = videoID.Contains("&list") ? videoID.Substring(0, videoID.IndexOf("&list")) : videoID;
-                    string title = await GetTitle(videoID);
-
-                    lstBox.Items.Add(HttpUtility.HtmlDecode(title));
-
-                    urlList.Add(url);
-
-                    listCount++;
-                    if (converting)
-                        UpdateLabel(string.Format("Converting and downloading: {0}/{1}", count, listCount));
-
-                    txtURL.Text = string.Empty;
-
-                    if (!btnConvert.Enabled && !string.IsNullOrEmpty(destinationPath) && !converting)
-                    {
-                        btnConvert.Enabled = true;
-                        btnConvert.BackgroundImage = Resources.play;
-                    }
-                } catch (Exception ex)
-                {
-                    MessageBox.Show(this, "Impossible to get URL from YouTube.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
+        #endregion
     }
 }

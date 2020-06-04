@@ -43,6 +43,10 @@
             // 
             // txtURL
             // 
+            this.txtURL.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtURL.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.txtURL.ForeColor = System.Drawing.Color.White;
             this.txtURL.Location = new System.Drawing.Point(47, 6);
             this.txtURL.Name = "txtURL";
             this.txtURL.Size = new System.Drawing.Size(191, 20);
@@ -53,27 +57,30 @@
             // lblUrl
             // 
             this.lblUrl.AutoSize = true;
-            this.lblUrl.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUrl.Font = new System.Drawing.Font("Arial", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUrl.ForeColor = System.Drawing.Color.White;
             this.lblUrl.Location = new System.Drawing.Point(12, 9);
             this.lblUrl.Name = "lblUrl";
-            this.lblUrl.Size = new System.Drawing.Size(29, 13);
+            this.lblUrl.Size = new System.Drawing.Size(28, 14);
             this.lblUrl.TabIndex = 3;
             this.lblUrl.Text = "URL";
             // 
             // lblDestination
             // 
             this.lblDestination.AutoSize = true;
-            this.lblDestination.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDestination.Font = new System.Drawing.Font("Arial", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDestination.ForeColor = System.Drawing.Color.White;
             this.lblDestination.Location = new System.Drawing.Point(41, 15);
             this.lblDestination.Margin = new System.Windows.Forms.Padding(0, 15, 0, 0);
             this.lblDestination.Name = "lblDestination";
-            this.lblDestination.Size = new System.Drawing.Size(120, 13);
+            this.lblDestination.Size = new System.Drawing.Size(142, 14);
             this.lblDestination.TabIndex = 5;
             this.lblDestination.Text = "Select destination folder";
             this.lblDestination.MouseClick += new System.Windows.Forms.MouseEventHandler(this.flpDestination_MouseClick);
             // 
             // flpDestination
             // 
+            this.flpDestination.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.flpDestination.Controls.Add(this.btnSelectFolder);
             this.flpDestination.Controls.Add(this.lblDestination);
             this.flpDestination.Location = new System.Drawing.Point(12, 224);
@@ -101,6 +108,7 @@
             // 
             // btnConvert
             // 
+            this.btnConvert.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnConvert.BackColor = System.Drawing.Color.Transparent;
             this.btnConvert.BackgroundImage = global::YT2MP3.Properties.Resources.play_disabled;
             this.btnConvert.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
@@ -117,38 +125,53 @@
             // 
             // progBar
             // 
-            this.progBar.Location = new System.Drawing.Point(9, 195);
+            this.progBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.progBar.BackColor = System.Drawing.Color.White;
+            this.progBar.ForeColor = System.Drawing.Color.LimeGreen;
+            this.progBar.Location = new System.Drawing.Point(12, 195);
             this.progBar.Margin = new System.Windows.Forms.Padding(0);
             this.progBar.Name = "progBar";
-            this.progBar.Size = new System.Drawing.Size(232, 23);
+            this.progBar.Size = new System.Drawing.Size(226, 22);
             this.progBar.TabIndex = 8;
             this.progBar.Visible = false;
             // 
             // lblUpdate
             // 
+            this.lblUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.lblUpdate.BackColor = System.Drawing.Color.Transparent;
-            this.lblUpdate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUpdate.Location = new System.Drawing.Point(9, 195);
+            this.lblUpdate.Font = new System.Drawing.Font("Arial", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUpdate.ForeColor = System.Drawing.Color.White;
+            this.lblUpdate.Location = new System.Drawing.Point(12, 195);
             this.lblUpdate.Margin = new System.Windows.Forms.Padding(0);
             this.lblUpdate.Name = "lblUpdate";
-            this.lblUpdate.Size = new System.Drawing.Size(229, 22);
+            this.lblUpdate.Size = new System.Drawing.Size(226, 22);
             this.lblUpdate.TabIndex = 9;
             this.lblUpdate.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lstBox
             // 
-            this.lstBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lstBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lstBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.lstBox.Font = new System.Drawing.Font("Arial", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lstBox.ForeColor = System.Drawing.Color.White;
             this.lstBox.FormattingEnabled = true;
             this.lstBox.HorizontalScrollbar = true;
+            this.lstBox.ItemHeight = 14;
             this.lstBox.Location = new System.Drawing.Point(12, 32);
             this.lstBox.Name = "lstBox";
-            this.lstBox.Size = new System.Drawing.Size(226, 160);
+            this.lstBox.Size = new System.Drawing.Size(226, 158);
             this.lstBox.TabIndex = 11;
+            this.lstBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstBox_MouseDown);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.ClientSize = new System.Drawing.Size(250, 271);
             this.Controls.Add(this.lstBox);
             this.Controls.Add(this.lblUpdate);
@@ -157,8 +180,8 @@
             this.Controls.Add(this.lblUrl);
             this.Controls.Add(this.txtURL);
             this.Controls.Add(this.btnConvert);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(266, 310);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "YT 2 MP3";
