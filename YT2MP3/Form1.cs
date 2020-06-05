@@ -1,39 +1,24 @@
-﻿using System;
+﻿using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
+using HtmlAgilityPack;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
-using HtmlAgilityPack;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using YT2MP3.Properties;
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Services;
-using Google.Apis.Upload;
-using Google.Apis.Util.Store;
-using Google.Apis.YouTube.v3;
-using Google.Apis.YouTube.v3.Data;
 
 namespace YT2MP3
 {
-    public partial class Form1 : Form
+    public partial class mainPanel : Form
     {
         string destinationPath;
         List<VideoList> urlList;
@@ -43,13 +28,21 @@ namespace YT2MP3
         int count = 1;
         bool converting = false;
 
-        public Form1()
+        private enum Mode
+        {
+            Night,
+            Day
+        }
+
+        public mainPanel()
         {
             InitializeComponent();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            SetColors(ConfigurationManager.AppSettings["interface"].Equals("day") ? Mode.Day : Mode.Night);
+
             CheckUpdate();
 
             txtURL.Focus();
@@ -227,6 +220,58 @@ namespace YT2MP3
             }
             txtURL.Enabled = true;
             txtURL.Focus();
+        }
+
+        private void btnDayNight_Click(object sender, EventArgs e)
+        {
+            string setting = ConfigurationManager.AppSettings["interface"];
+
+            if (setting.Equals("day"))
+            {
+                SetColors(Mode.Night);
+                setting = "night";
+            }
+            else
+            {
+                SetColors(Mode.Day);
+                setting = "day";
+            }
+
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            config.AppSettings.Settings["interface"].Value = setting;
+            config.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection("appSettings");
+        }
+
+        private void SetColors (Mode style)
+        {
+            Color foreColor, backcolor;
+            Bitmap dayNight;
+
+            if (style == Mode.Night)
+            {
+                foreColor = Color.White;
+                backcolor = Color.FromArgb(64, 64, 64);
+                dayNight = Resources.day;
+                this.BackColor = backcolor;
+            } else
+            {
+                foreColor = Color.Black;
+                backcolor = Color.White;
+                dayNight = Resources.night;
+                this.BackColor = Color.FromKnownColor(KnownColor.Control);
+            }
+
+            lblUrl.ForeColor = foreColor;
+            lblUpdate.ForeColor = foreColor;
+            lblDestination.ForeColor = foreColor;
+            txtURL.ForeColor = foreColor;
+            lstBox.ForeColor = foreColor;
+
+            txtURL.BackColor = backcolor;
+            lstBox.BackColor = backcolor;
+
+            btnDayNight.BackgroundImage = dayNight;
         }
         #endregion
 
