@@ -33,11 +33,11 @@
             this.lblUrl = new System.Windows.Forms.Label();
             this.lblDestination = new System.Windows.Forms.Label();
             this.flpDestination = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnSelectFolder = new System.Windows.Forms.Button();
             this.progBar = new System.Windows.Forms.ProgressBar();
             this.lblUpdate = new System.Windows.Forms.Label();
             this.lstBox = new System.Windows.Forms.ListBox();
             this.btnDayNight = new System.Windows.Forms.Button();
-            this.btnSelectFolder = new System.Windows.Forms.Button();
             this.btnConvert = new System.Windows.Forms.Button();
             this.backPanel = new System.Windows.Forms.PictureBox();
             this.flpDestination.SuspendLayout();
@@ -95,6 +95,23 @@
             this.flpDestination.TabIndex = 6;
             this.flpDestination.MouseClick += new System.Windows.Forms.MouseEventHandler(this.flpDestination_MouseClick);
             // 
+            // btnSelectFolder
+            // 
+            this.btnSelectFolder.BackColor = System.Drawing.Color.Transparent;
+            this.btnSelectFolder.BackgroundImage = global::YT2MP3.Properties.Resources.folder;
+            this.btnSelectFolder.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnSelectFolder.FlatAppearance.BorderSize = 0;
+            this.btnSelectFolder.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSelectFolder.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSelectFolder.Location = new System.Drawing.Point(3, 3);
+            this.btnSelectFolder.Name = "btnSelectFolder";
+            this.btnSelectFolder.Size = new System.Drawing.Size(35, 35);
+            this.btnSelectFolder.TabIndex = 4;
+            this.btnSelectFolder.TabStop = false;
+            this.btnSelectFolder.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnSelectFolder.UseVisualStyleBackColor = false;
+            this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
+            // 
             // progBar
             // 
             this.progBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -141,7 +158,7 @@
             // 
             // btnDayNight
             // 
-            this.btnDayNight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDayNight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnDayNight.BackColor = System.Drawing.Color.Transparent;
             this.btnDayNight.BackgroundImage = global::YT2MP3.Properties.Resources.day;
             this.btnDayNight.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
@@ -154,23 +171,6 @@
             this.btnDayNight.TabStop = false;
             this.btnDayNight.UseVisualStyleBackColor = false;
             this.btnDayNight.Click += new System.EventHandler(this.btnDayNight_Click);
-            // 
-            // btnSelectFolder
-            // 
-            this.btnSelectFolder.BackColor = System.Drawing.Color.Transparent;
-            this.btnSelectFolder.BackgroundImage = global::YT2MP3.Properties.Resources.folder;
-            this.btnSelectFolder.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnSelectFolder.FlatAppearance.BorderSize = 0;
-            this.btnSelectFolder.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSelectFolder.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSelectFolder.Location = new System.Drawing.Point(3, 3);
-            this.btnSelectFolder.Name = "btnSelectFolder";
-            this.btnSelectFolder.Size = new System.Drawing.Size(35, 35);
-            this.btnSelectFolder.TabIndex = 4;
-            this.btnSelectFolder.TabStop = false;
-            this.btnSelectFolder.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnSelectFolder.UseVisualStyleBackColor = false;
-            this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
             // 
             // btnConvert
             // 
