@@ -40,8 +40,11 @@
             this.btnDayNight = new System.Windows.Forms.Button();
             this.btnConvert = new System.Windows.Forms.Button();
             this.backPanel = new System.Windows.Forms.PictureBox();
+            this.lblClipboard = new System.Windows.Forms.Label();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.flpDestination.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.backPanel)).BeginInit();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtURL
@@ -198,12 +201,42 @@
             this.backPanel.TabIndex = 13;
             this.backPanel.TabStop = false;
             // 
+            // lblClipboard
+            // 
+            this.lblClipboard.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.lblClipboard.AutoSize = true;
+            this.lblClipboard.BackColor = System.Drawing.Color.White;
+            this.lblClipboard.Font = new System.Drawing.Font("Arial", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblClipboard.ForeColor = System.Drawing.Color.Gray;
+            this.lblClipboard.Location = new System.Drawing.Point(66, 3);
+            this.lblClipboard.Name = "lblClipboard";
+            this.lblClipboard.Size = new System.Drawing.Size(136, 14);
+            this.lblClipboard.TabIndex = 14;
+            this.lblClipboard.Text = "URL copied to clipboard";
+            this.lblClipboard.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblClipboard.Visible = false;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            this.tableLayoutPanel1.Controls.Add(this.lblClipboard, 0, 0);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(12, 211);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 1;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(268, 20);
+            this.tableLayoutPanel1.TabIndex = 15;
+            // 
             // mainPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.ClientSize = new System.Drawing.Size(292, 271);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.btnDayNight);
             this.Controls.Add(this.lstBox);
             this.Controls.Add(this.lblUpdate);
@@ -223,6 +256,8 @@
             this.flpDestination.ResumeLayout(false);
             this.flpDestination.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.backPanel)).EndInit();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -241,6 +276,8 @@
         private System.Windows.Forms.ListBox lstBox;
         private System.Windows.Forms.Button btnDayNight;
         private System.Windows.Forms.PictureBox backPanel;
+        private System.Windows.Forms.Label lblClipboard;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
     }
 }
 

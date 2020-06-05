@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
 using YT2MP3.Properties;
+using Timer = System.Windows.Forms.Timer;
 
 namespace YT2MP3
 {
@@ -27,6 +28,7 @@ namespace YT2MP3
         int listCount = 0;
         int count = 1;
         bool converting = false;
+        Timer fadingTimer = new Timer();
 
         private enum Mode
         {
@@ -52,6 +54,7 @@ namespace YT2MP3
             removeList = new List<VideoList>();
 
             ContextMenu cm = new ContextMenu();
+            cm.MenuItems.Add(new MenuItem("Copy URL", CopyUrl));
             cm.MenuItems.Add(new MenuItem("Remove", RemoveItem));
             lstBox.ContextMenu = cm;
         }
@@ -374,7 +377,7 @@ namespace YT2MP3
             }));
         }
 
-        #region Remove From List
+        #region Context Menu
         private void lstBox_MouseDown(object sender, MouseEventArgs e)
         {
             lstBox.SelectedIndex = lstBox.IndexFromPoint(e.X, e.Y);
@@ -391,6 +394,43 @@ namespace YT2MP3
                 if (converting)
                     UpdateLabel(string.Format("Converting and downloading: {0}/{1}", count, listCount));
             }
+        }
+
+        private void CopyUrl(object sender, EventArgs e)
+        {
+            if (lstBox.SelectedIndex >= 0)
+            {
+                int selectedIndex = lstBox.SelectedIndex;
+                string URL;
+                if (converting)
+                {
+                    URL = workingList.Find(x => x.Title == lstBox.Items[selectedIndex].ToString()).URL;
+                    if (string.IsNullOrEmpty(URL))
+                        URL = urlList.Find(x => x.Title == lstBox.Items[selectedIndex].ToString()).URL;
+                }
+                else
+                    URL = urlList.Find(x => x.Title == lstBox.Items[selectedIndex].ToString()).URL;
+
+                Clipboard.SetText(URL);
+
+                Thread thread = new Thread(PopUp);
+                thread.Start();
+            }
+        }
+
+        private void PopUp()
+        {
+            this.Invoke(new Action(() =>
+            {
+                lblClipboard.Visible = true;
+            }));
+
+            Thread.Sleep(1500);
+
+            this.Invoke(new Action(() =>
+            {
+                lblClipboard.Visible = false;
+            }));
         }
         #endregion
     }
