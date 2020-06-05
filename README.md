@@ -7,6 +7,7 @@ Convert to mp3 and download youtube videos.
 - Automatically checks for updates on startup
 - Add multiple url videos to download list
 - Remove from list with mouse right-click
+- Day/Night mode
 
 
 ## Download YouTube MP3 Downloader
