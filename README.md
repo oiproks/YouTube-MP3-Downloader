@@ -16,3 +16,4 @@ The application is available for download from [HERE](https://github.com/oiproks
 
 ## Screenshots
 ![Screenshots](/Contents/Screen.png)
+![Screenshots](/Contents/Screen_1.png)
