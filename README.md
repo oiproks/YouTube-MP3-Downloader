@@ -1,15 +1,16 @@
 # YouTube MP3 Downloader
 
 Convert to mp3 and download youtube videos.
+The program makes use of [youtube-dl](https://github.com/ytdl-org/youtube-dl/).
 
 ## Features
 
-- Automatically checks for updates on startup
+- Automatically checks for latest [youtube-dl](https://github.com/ytdl-org/youtube-dl/) updates on startup
 - Add multiple url videos to download list
 - Day/Night mode
 - Context menu on download list items with:
     - Remove from list
-	- Copy URL
+    - Copy URL
 
 
 ## Download YouTube MP3 Downloader
