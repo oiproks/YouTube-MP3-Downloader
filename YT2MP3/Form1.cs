@@ -29,6 +29,7 @@ namespace YT2MP3
         int count = 1;
         bool converting = false;
         Timer fadingTimer = new Timer();
+        ToolTip tip = new ToolTip();
 
         private enum Mode
         {
@@ -39,7 +40,78 @@ namespace YT2MP3
         public mainPanel()
         {
             InitializeComponent();
+        
+            // Testing
+            this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.ResizeRedraw, true);
         }
+
+        #region Testing
+        bool mouseDown = false;
+        Point lastLocation;
+        private void Interface_MouseDown(object sender, MouseEventArgs e)
+        {
+            mouseDown = true;
+            lastLocation = e.Location;
+        }
+
+        private void Interface_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (mouseDown)
+            {
+                Location = new Point(
+                    (Location.X - lastLocation.X) + e.X, (Location.Y - lastLocation.Y) + e.Y);
+
+                Update();
+            }
+        }
+
+        private void Interface_MouseUp(object sender, MouseEventArgs e)
+        {
+            mouseDown = false;
+        }
+
+        private const int cGrip = 16;      // Grip size
+        private const int cBorder = 5;      // Border size
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            Rectangle rc = new Rectangle(this.ClientSize.Width - cGrip, this.ClientSize.Height - cGrip, cGrip, cGrip);
+            ControlPaint.DrawSizeGrip(e.Graphics, this.BackColor, rc);
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == 0x84)
+            {
+                Point pos = new Point(m.LParam.ToInt32());
+                pos = this.PointToClient(pos);
+                
+                if (pos.X <= cBorder)
+                {
+                    m.Result = (IntPtr)10; // Left border
+                    return;
+                } else if (pos.X >= this.ClientSize.Width - cBorder && pos.Y <= this.ClientSize.Height - cGrip)
+                {
+                    m.Result = (IntPtr)11; // Right border
+                    return;
+                } else if (pos.X <= this.ClientSize.Width - cGrip && pos.Y >= this.ClientSize.Height - cBorder)
+                {
+                    m.Result = (IntPtr)15; // Bottom border
+                    return;
+                } else if (pos.Y <= cBorder)
+                {
+                    m.Result = (IntPtr)12; // Bottom border
+                    return;
+                } else if (pos.X >= this.ClientSize.Width - cGrip && pos.Y >= this.ClientSize.Height - cGrip)
+                {
+                    m.Result = (IntPtr)17; // Bottom Right Corner
+                    return;
+                }
+            }
+            base.WndProc(ref m);
+        }
+        #endregion
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -90,7 +162,8 @@ namespace YT2MP3
                             config.Save(ConfigurationSaveMode.Modified);
                             ConfigurationManager.RefreshSection("appSettings");
 
-                            if (!string.IsNullOrEmpty(exeUrl)) {
+                            if (!string.IsNullOrEmpty(exeUrl))
+                            {
                                 using (WebClient wc = new WebClient())
                                 {
                                     lblUpdate.Visible = false;
@@ -100,7 +173,7 @@ namespace YT2MP3
                                     await wc.DownloadFileTaskAsync(
                                         new Uri(exeUrl),
                                         Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe"));
-                                    
+
                                 }
                             }
                         }
@@ -121,7 +194,7 @@ namespace YT2MP3
                 }));
             }
         }
-   
+
         void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             progBar.Value = e.ProgressPercentage;
@@ -175,7 +248,7 @@ namespace YT2MP3
                 workingList.Add(url);
 
             urlList.Clear();
-            
+
             Thread thread = new Thread(Download);
             thread.Start();
         }
@@ -216,7 +289,8 @@ namespace YT2MP3
                         btnConvert.Enabled = true;
                         btnConvert.BackgroundImage = Resources.play;
                     }
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     MessageBox.Show(this, "Impossible to get URL from YouTube.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -246,9 +320,9 @@ namespace YT2MP3
             ConfigurationManager.RefreshSection("appSettings");
         }
 
-        private void SetColors (Mode style)
+        private void SetColors(Mode style)
         {
-            Color foreColor, backcolor;
+            Color foreColor, backcolor, mouseOverBack;
             Bitmap dayNight;
 
             if (style == Mode.Night)
@@ -256,12 +330,15 @@ namespace YT2MP3
                 foreColor = Color.White;
                 backcolor = Color.FromArgb(64, 64, 64);
                 dayNight = Resources.day;
+                mouseOverBack = Color.Gray;
                 this.BackColor = backcolor;
-            } else
+            }
+            else
             {
                 foreColor = Color.Black;
                 backcolor = Color.White;
                 dayNight = Resources.night;
+                mouseOverBack = Color.Gainsboro;                
                 this.BackColor = Color.FromKnownColor(KnownColor.Control);
             }
 
@@ -275,6 +352,9 @@ namespace YT2MP3
             lstBox.BackColor = backcolor;
 
             btnDayNight.BackgroundImage = dayNight;
+            btnDayNight.FlatAppearance.MouseOverBackColor = mouseOverBack;
+            btnSelectFolder.FlatAppearance.MouseOverBackColor = mouseOverBack;
+            btnConvert.FlatAppearance.MouseOverBackColor = mouseOverBack;
         }
         #endregion
 
@@ -324,7 +404,8 @@ namespace YT2MP3
 
                 workingList.Clear();
 
-                if (urlList.Count == 0) {
+                if (urlList.Count == 0)
+                {
                     break;
                 }
                 else
@@ -360,7 +441,7 @@ namespace YT2MP3
             });
 
             var searchListRequest = youtubeService.Search.List("snippet");
-            searchListRequest.Q = url; 
+            searchListRequest.Q = url;
             searchListRequest.MaxResults = 1;
 
             var searchListResponse = await searchListRequest.ExecuteAsync();
@@ -431,6 +512,91 @@ namespace YT2MP3
             {
                 lblClipboard.Visible = false;
             }));
+        }
+        #endregion
+
+        #region New Interface Interactions
+        private void btnMin_Click(object sender, EventArgs e)
+        {
+            WindowState = FormWindowState.Minimized;
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void btnOnTop_click(object sender, EventArgs e)
+        {
+            string text;
+            int textWidth = 0;
+            
+            if (TopMost)
+            {
+                TopMost = false;
+                text = "Window won't stay on top anymore";
+                textWidth = 100;
+            }
+            else
+            {
+                TopMost = true;
+                text = "Window will stay on top";
+                textWidth = 60;
+            }
+            tip.Dispose();
+            tip = new ToolTip();
+            int yLoc = txtURL.Location.Y - (txtURL.Height);
+            tip.Show(text, this, (this.Width / 2) - textWidth, yLoc, 2000);
+        }
+
+        private void btn_MouseOver(object sender, EventArgs e)
+        {
+            Button button = (Button)sender;
+            string text = string.Empty;
+            int x = button.Location.X;
+            int y = button.Location.Y;
+            int time = 1000;
+            switch (button.Tag)
+            {
+                case "ontop":
+                    if (!TopMost)
+                        text = "Stay On Top";
+                    else
+                        text = "Remove From Top";
+                    y += -button.Height - button.Height;
+                    break;
+                case "minimize":
+                    text = "Minimize on taskbar";
+                    y += -button.Height - button.Height;
+                    break;
+                case "close":
+                    text = "Quit";
+                    y += -button.Height - button.Height;
+                    break;
+                case "convert":
+                    text = "Start converting";
+                    y += button.Parent.Location.Y - button.Height / 2;
+                    x += button.Parent.Location.X + button.Parent.Width;
+                    break;
+                case "day_night":
+                    string setting = ConfigurationManager.AppSettings["interface"];
+
+                    if (setting.Equals("day"))
+                        text = "Switch to night mode";
+                    else
+                        text = "Switch to day mode";
+                    x += button.Width;
+                    break;
+                default:
+                    break;
+            }
+            tip.Dispose();
+            tip = new ToolTip();
+            tip.Show(text,
+                this,
+                x,
+                y,
+                time);
         }
         #endregion
     }
