@@ -1,6 +1,4 @@
-﻿using Google.Apis.Services;
-using Google.Apis.YouTube.v3;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -11,11 +9,9 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
 using YT2MP3.Properties;
-using Timer = System.Windows.Forms.Timer;
 
 namespace YT2MP3
 {
@@ -336,7 +332,7 @@ namespace YT2MP3
             }
         }
 
-        private async void txtURL_KeyDown(object sender, KeyEventArgs e)
+        private void txtURL_KeyDown(object sender, KeyEventArgs e)
         {
             string url = txtURL.Text.ToString();
             if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(url))
@@ -346,7 +342,7 @@ namespace YT2MP3
                 {
                     string videoID = url.Substring(url.IndexOf("?v=") + 3);
                     videoID = videoID.Contains("&list") ? videoID.Substring(0, videoID.IndexOf("&list")) : videoID;
-                    string title = await GetTitle(videoID);
+                    string title = GetTitle(url);
 
                     lstBox.Items.Add(HttpUtility.HtmlDecode(title));
 
@@ -430,6 +426,29 @@ namespace YT2MP3
         #endregion
 
         #region Download Management
+        private string GetTitle(string url)
+        {
+            string executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe");
+
+            ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --get-title {1}", executablePath, url));
+
+            procStartInfo.RedirectStandardOutput = true;
+            procStartInfo.UseShellExecute = false;
+            procStartInfo.CreateNoWindow = true;
+
+            using (Process process = new Process())
+            {
+                process.StartInfo = procStartInfo;
+                process.Start();
+
+                process.WaitForExit();
+
+                string result = process.StandardOutput.ReadToEnd();
+
+                return result;
+            }
+        }
+
         private void Download()
         {
             Thread thread;
@@ -501,23 +520,6 @@ namespace YT2MP3
 
             listCount = 0;
             count = 1;
-        }
-
-        private async Task<string> GetTitle(string url)
-        {
-            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-            {
-                ApiKey = "AIzaSyCQTeygLLYWKCj4zjpqQBQSc1I_6jN_ipE",
-                ApplicationName = this.GetType().ToString()
-            });
-
-            var searchListRequest = youtubeService.Search.List("snippet");
-            searchListRequest.Q = url;
-            searchListRequest.MaxResults = 1;
-
-            var searchListResponse = await searchListRequest.ExecuteAsync();
-
-            return searchListResponse.Items[0].Snippet.Title;
         }
         #endregion
 
