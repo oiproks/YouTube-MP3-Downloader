@@ -117,7 +117,7 @@
             this.btnSelectFolder.Size = new System.Drawing.Size(35, 35);
             this.btnSelectFolder.TabIndex = 4;
             this.btnSelectFolder.TabStop = false;
-            this.btnSelectFolder.Tag = "";
+            this.btnSelectFolder.Tag = "path";
             this.btnSelectFolder.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnSelectFolder.UseVisualStyleBackColor = false;
             this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);

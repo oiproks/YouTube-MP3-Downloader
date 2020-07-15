@@ -21,6 +21,7 @@ namespace YT2MP3
 {
     public partial class mainPanel : Form
     {
+        #region Variables
         string destinationPath;
         List<VideoList> urlList;
         List<VideoList> workingList;
@@ -28,15 +29,29 @@ namespace YT2MP3
         int listCount = 0;
         int count = 1;
         bool converting = false;
-        Timer fadingTimer = new Timer();
         ToolTip tip = new ToolTip();
 
-        private enum Mode
+        private enum ColourMode
         {
             Night,
             Day
         }
 
+        static class OnTopMode
+        {
+            public const string False = "0";
+            public const string True = "1";
+        }
+
+        static class Settings
+        {
+            public const string OnTop = "onTop";
+            public const string DownloadFolder = "lastUsedFolder";
+            public const string Interface = "interface";
+        }
+        #endregion
+
+        #region Init
         public mainPanel()
         {
             InitializeComponent();
@@ -46,7 +61,30 @@ namespace YT2MP3
             this.SetStyle(ControlStyles.ResizeRedraw, true);
         }
 
-        #region Testing
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            SetColors(ConfigurationManager.AppSettings[Settings.Interface].Equals("day") ? ColourMode.Day : ColourMode.Night);
+
+            TopMost = !ConfigurationManager.AppSettings[Settings.OnTop].Equals(OnTopMode.False);
+
+            SetDestinationPath(ConfigurationManager.AppSettings[Settings.DownloadFolder], false);
+
+            CheckUpdate();
+
+            txtURL.Focus();
+
+            urlList = new List<VideoList>();
+            workingList = new List<VideoList>();
+            removeList = new List<VideoList>();
+
+            ContextMenu cm = new ContextMenu();
+            cm.MenuItems.Add(new MenuItem("Copy URL", CopyUrl));
+            cm.MenuItems.Add(new MenuItem("Remove", RemoveItem));
+            lstBox.ContextMenu = cm;
+        }
+        #endregion
+
+        #region Resizing and Dragging
         bool mouseDown = false;
         Point lastLocation;
         private void Interface_MouseDown(object sender, MouseEventArgs e)
@@ -113,25 +151,7 @@ namespace YT2MP3
         }
         #endregion
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            SetColors(ConfigurationManager.AppSettings["interface"].Equals("day") ? Mode.Day : Mode.Night);
-
-            CheckUpdate();
-
-            txtURL.Focus();
-
-            urlList = new List<VideoList>();
-            workingList = new List<VideoList>();
-            removeList = new List<VideoList>();
-
-            ContextMenu cm = new ContextMenu();
-            cm.MenuItems.Add(new MenuItem("Copy URL", CopyUrl));
-            cm.MenuItems.Add(new MenuItem("Remove", RemoveItem));
-            lstBox.ContextMenu = cm;
-        }
-
-        #region Update
+        #region Search for Update
         private async void CheckUpdate()
         {
             try
@@ -208,7 +228,13 @@ namespace YT2MP3
         }
         #endregion
 
-        #region Interface Interactions
+        #region Button Interactions
+        private void flpDestination_MouseClick(object sender, MouseEventArgs e)
+        {
+            lblUpdate.Text = string.Empty;
+            btnSelectFolder_Click(sender, e);
+        }
+
         private void btnSelectFolder_Click(object sender, EventArgs e)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
@@ -217,11 +243,7 @@ namespace YT2MP3
             dialog.Title = "Select destination folder";
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                destinationPath = dialog.FileName;
-                string folder = destinationPath.Substring(destinationPath.LastIndexOf("\\") + 1);
-                lblDestination.Text = folder;
-
-                destinationPath = Path.Combine(destinationPath, "%(title)s.%(ext)s");
+                SetDestinationPath(dialog.FileName);
 
                 if (urlList.Count > 0)
                 {
@@ -230,13 +252,7 @@ namespace YT2MP3
                 }
             }
         }
-
-        private void flpDestination_MouseClick(object sender, MouseEventArgs e)
-        {
-            lblUpdate.Text = string.Empty;
-            btnSelectFolder_Click(sender, e);
-        }
-
+        
         private void btnConvert_Click(object sender, EventArgs e)
         {
             lblUpdate.Text = string.Format("Converting and downloading: 0/{0}", listCount);
@@ -253,6 +269,64 @@ namespace YT2MP3
             thread.Start();
         }
 
+        private void btnDayNight_Click(object sender, EventArgs e)
+        {
+            string setting = ConfigurationManager.AppSettings["interface"];
+
+            if (setting.Equals("day"))
+            {
+                SetColors(ColourMode.Night);
+                setting = "night";
+            }
+            else
+            {
+                SetColors(ColourMode.Day);
+                setting = "day";
+            }
+
+            SaveConfig(Settings.Interface, setting);
+        }
+
+        private void btnMin_Click(object sender, EventArgs e)
+        {
+            WindowState = FormWindowState.Minimized;
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void btnOnTop_click(object sender, EventArgs e)
+        {
+            string text, setting;
+            int textWidth;
+
+            if (TopMost)
+            {
+                TopMost = false;
+                text = "Window won't stay on top anymore";
+                textWidth = 100;
+                setting = OnTopMode.False;
+            }
+            else
+            {
+                TopMost = true;
+                text = "Window will stay on top";
+                textWidth = 60;
+                setting = OnTopMode.True;
+            }
+
+            tip.Dispose();
+            tip = new ToolTip();
+            int yLoc = txtURL.Location.Y - (txtURL.Height);
+            tip.Show(text, this, (this.Width / 2) - textWidth, yLoc, 2000);
+
+            SaveConfig(Settings.OnTop, setting);
+        }
+        #endregion
+
+        #region Text Interactions
         private void txtURL_TextChanged(object sender, EventArgs e)
         {
             string URL = txtURL.Text.ToString();
@@ -299,62 +373,59 @@ namespace YT2MP3
             txtURL.Focus();
         }
 
-        private void btnDayNight_Click(object sender, EventArgs e)
+        private void btn_MouseOver(object sender, EventArgs e)
         {
-            string setting = ConfigurationManager.AppSettings["interface"];
-
-            if (setting.Equals("day"))
+            Button button = (Button)sender;
+            string text = string.Empty;
+            int x = button.Location.X;
+            int y = button.Location.Y;
+            int time = 1000;
+            switch (button.Tag)
             {
-                SetColors(Mode.Night);
-                setting = "night";
+                case "ontop":
+                    if (!TopMost)
+                        text = "Stay On Top";
+                    else
+                        text = "Remove From Top";
+                    y += -button.Height - button.Height;
+                    break;
+                case "minimize":
+                    text = "Minimize on taskbar";
+                    y += -button.Height - button.Height;
+                    break;
+                case "close":
+                    text = "Quit";
+                    y += -button.Height - button.Height;
+                    break;
+                case "convert":
+                    text = "Start converting";
+                    x += button.Width;
+                    break;
+                case "day_night":
+                    string setting = ConfigurationManager.AppSettings["interface"];
+
+                    if (setting.Equals("day"))
+                        text = "Switch to night mode";
+                    else
+                        text = "Switch to day mode";
+                    x += button.Width;
+                    break;
+                case "path":
+                    text = ConfigurationManager.AppSettings[Settings.DownloadFolder];
+                    y += button.Parent.Location.Y + button.Height / 4;
+                    x += button.Parent.Location.X + button.Location.X + button.Width;
+                    time = 2000;
+                    break;
+                default:
+                    break;
             }
-            else
-            {
-                SetColors(Mode.Day);
-                setting = "day";
-            }
-
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            config.AppSettings.Settings["interface"].Value = setting;
-            config.Save(ConfigurationSaveMode.Modified);
-            ConfigurationManager.RefreshSection("appSettings");
-        }
-
-        private void SetColors(Mode style)
-        {
-            Color foreColor, backcolor, mouseOverBack;
-            Bitmap dayNight;
-
-            if (style == Mode.Night)
-            {
-                foreColor = Color.White;
-                backcolor = Color.FromArgb(64, 64, 64);
-                dayNight = Resources.day;
-                mouseOverBack = Color.Gray;
-                this.BackColor = backcolor;
-            }
-            else
-            {
-                foreColor = Color.Black;
-                backcolor = Color.White;
-                dayNight = Resources.night;
-                mouseOverBack = Color.Gainsboro;                
-                this.BackColor = Color.FromKnownColor(KnownColor.Control);
-            }
-
-            lblUrl.ForeColor = foreColor;
-            lblUpdate.ForeColor = foreColor;
-            lblDestination.ForeColor = foreColor;
-            txtURL.ForeColor = foreColor;
-            lstBox.ForeColor = foreColor;
-
-            txtURL.BackColor = backcolor;
-            lstBox.BackColor = backcolor;
-
-            btnDayNight.BackgroundImage = dayNight;
-            btnDayNight.FlatAppearance.MouseOverBackColor = mouseOverBack;
-            btnSelectFolder.FlatAppearance.MouseOverBackColor = mouseOverBack;
-            btnConvert.FlatAppearance.MouseOverBackColor = mouseOverBack;
+            tip.Dispose();
+            tip = new ToolTip();
+            tip.Show(text,
+                this,
+                x,
+                y,
+                time);
         }
         #endregion
 
@@ -450,15 +521,7 @@ namespace YT2MP3
         }
         #endregion
 
-        private void UpdateLabel(object text)
-        {
-            this.Invoke(new Action(() =>
-            {
-                lblUpdate.Text = text.ToString();
-            }));
-        }
-
-        #region Context Menu
+        #region Song List Context Menu
         private void lstBox_MouseDown(object sender, MouseEventArgs e)
         {
             lstBox.SelectedIndex = lstBox.IndexFromPoint(e.X, e.Y);
@@ -515,88 +578,73 @@ namespace YT2MP3
         }
         #endregion
 
-        #region New Interface Interactions
-        private void btnMin_Click(object sender, EventArgs e)
+        #region Utils
+        private void SetDestinationPath(string folderPath, bool save = true)
         {
-            WindowState = FormWindowState.Minimized;
-        }
-
-        private void btnClose_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
-        private void btnOnTop_click(object sender, EventArgs e)
-        {
-            string text;
-            int textWidth = 0;
-            
-            if (TopMost)
+            if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
             {
-                TopMost = false;
-                text = "Window won't stay on top anymore";
-                textWidth = 100;
+                if (save)
+                    SaveConfig(Settings.DownloadFolder, folderPath);
+
+                destinationPath = folderPath;
+                string folder = destinationPath.Substring(destinationPath.LastIndexOf("\\") + 1);
+                lblDestination.Text = folder;
+
+                destinationPath = Path.Combine(destinationPath, "%(title)s.%(ext)s");
+            }
+        }
+
+        private void SetColors(ColourMode style)
+        {
+            Color foreColor, backcolor, mouseOverBack;
+            Bitmap dayNight;
+
+            if (style == ColourMode.Night)
+            {
+                foreColor = Color.White;
+                backcolor = Color.FromArgb(64, 64, 64);
+                dayNight = Resources.day;
+                mouseOverBack = Color.Gray;
+                this.BackColor = backcolor;
             }
             else
             {
-                TopMost = true;
-                text = "Window will stay on top";
-                textWidth = 60;
+                foreColor = Color.Black;
+                backcolor = Color.White;
+                dayNight = Resources.night;
+                mouseOverBack = Color.Gainsboro;
+                this.BackColor = Color.FromKnownColor(KnownColor.Control);
             }
-            tip.Dispose();
-            tip = new ToolTip();
-            int yLoc = txtURL.Location.Y - (txtURL.Height);
-            tip.Show(text, this, (this.Width / 2) - textWidth, yLoc, 2000);
+
+            lblUrl.ForeColor = foreColor;
+            lblUpdate.ForeColor = foreColor;
+            lblDestination.ForeColor = foreColor;
+            txtURL.ForeColor = foreColor;
+            lstBox.ForeColor = foreColor;
+
+            txtURL.BackColor = backcolor;
+            lstBox.BackColor = backcolor;
+
+            btnDayNight.BackgroundImage = dayNight;
+            btnDayNight.FlatAppearance.MouseOverBackColor = mouseOverBack;
+            btnSelectFolder.FlatAppearance.MouseOverBackColor = mouseOverBack;
+            btnConvert.FlatAppearance.MouseOverBackColor = mouseOverBack;
         }
 
-        private void btn_MouseOver(object sender, EventArgs e)
+        private void SaveConfig(string setting, string value)
         {
-            Button button = (Button)sender;
-            string text = string.Empty;
-            int x = button.Location.X;
-            int y = button.Location.Y;
-            int time = 1000;
-            switch (button.Tag)
-            {
-                case "ontop":
-                    if (!TopMost)
-                        text = "Stay On Top";
-                    else
-                        text = "Remove From Top";
-                    y += -button.Height - button.Height;
-                    break;
-                case "minimize":
-                    text = "Minimize on taskbar";
-                    y += -button.Height - button.Height;
-                    break;
-                case "close":
-                    text = "Quit";
-                    y += -button.Height - button.Height;
-                    break;
-                case "convert":
-                    text = "Start converting";
-                    y += button.Parent.Location.Y - button.Height / 2;
-                    x += button.Parent.Location.X + button.Parent.Width;
-                    break;
-                case "day_night":
-                    string setting = ConfigurationManager.AppSettings["interface"];
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            config.AppSettings.Settings[setting].Value = value;
+            config.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection("appSettings");
+        }
 
-                    if (setting.Equals("day"))
-                        text = "Switch to night mode";
-                    else
-                        text = "Switch to day mode";
-                    x += button.Width;
-                    break;
-                default:
-                    break;
-            }
-            tip.Dispose();
-            tip = new ToolTip();
-            tip.Show(text,
-                this,
-                x,
-                y,
-                time);
+        private void UpdateLabel(object text)
+        {
+            this.Invoke(new Action(() =>
+            {
+                lblUpdate.Text = text.ToString();
+            }));
         }
         #endregion
     }
