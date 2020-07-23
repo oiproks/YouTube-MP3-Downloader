@@ -42,9 +42,10 @@
             this.btnClose = new System.Windows.Forms.Button();
             this.btnOnTop = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.btnDayNight = new System.Windows.Forms.Button();
-            this.btnConvert = new System.Windows.Forms.Button();
             this.lblTitle = new System.Windows.Forms.Label();
+            this.btnHistory = new System.Windows.Forms.Button();
+            this.btnConvert = new System.Windows.Forms.Button();
+            this.btnDayNight = new System.Windows.Forms.Button();
             this.topBar = new System.Windows.Forms.PictureBox();
             this.flpDestination.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -59,10 +60,10 @@
             this.txtURL.ForeColor = System.Drawing.Color.White;
             this.txtURL.Location = new System.Drawing.Point(47, 49);
             this.txtURL.Name = "txtURL";
-            this.txtURL.Size = new System.Drawing.Size(202, 20);
+            this.txtURL.Size = new System.Drawing.Size(183, 20);
             this.txtURL.TabIndex = 2;
-            this.txtURL.TextChanged += new System.EventHandler(this.txtURL_TextChanged);
-            this.txtURL.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtURL_KeyDown);
+            this.txtURL.TextChanged += new System.EventHandler(this.URL_TextChanged);
+            this.txtURL.KeyDown += new System.Windows.Forms.KeyEventHandler(this.URL_KeyDown);
             // 
             // lblUrl
             // 
@@ -89,7 +90,7 @@
             this.lblDestination.TabIndex = 5;
             this.lblDestination.Tag = "";
             this.lblDestination.Text = "Select destination folder";
-            this.lblDestination.MouseClick += new System.Windows.Forms.MouseEventHandler(this.flpDestination_MouseClick);
+            this.lblDestination.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Destination_MouseClick);
             // 
             // flpDestination
             // 
@@ -101,7 +102,7 @@
             this.flpDestination.Name = "flpDestination";
             this.flpDestination.Size = new System.Drawing.Size(196, 40);
             this.flpDestination.TabIndex = 6;
-            this.flpDestination.MouseClick += new System.Windows.Forms.MouseEventHandler(this.flpDestination_MouseClick);
+            this.flpDestination.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Destination_MouseClick);
             // 
             // btnSelectFolder
             // 
@@ -120,8 +121,8 @@
             this.btnSelectFolder.Tag = "path";
             this.btnSelectFolder.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnSelectFolder.UseVisualStyleBackColor = false;
-            this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
-            this.btnSelectFolder.MouseHover += new System.EventHandler(this.btn_MouseOver);
+            this.btnSelectFolder.Click += new System.EventHandler(this.SelectFolder_Click);
+            this.btnSelectFolder.MouseHover += new System.EventHandler(this.MouseOver);
             // 
             // progBar
             // 
@@ -132,7 +133,7 @@
             this.progBar.Location = new System.Drawing.Point(12, 234);
             this.progBar.Margin = new System.Windows.Forms.Padding(0);
             this.progBar.Name = "progBar";
-            this.progBar.Size = new System.Drawing.Size(268, 22);
+            this.progBar.Size = new System.Drawing.Size(280, 22);
             this.progBar.TabIndex = 8;
             this.progBar.Visible = false;
             // 
@@ -146,7 +147,7 @@
             this.lblUpdate.Location = new System.Drawing.Point(12, 234);
             this.lblUpdate.Margin = new System.Windows.Forms.Padding(0);
             this.lblUpdate.Name = "lblUpdate";
-            this.lblUpdate.Size = new System.Drawing.Size(268, 22);
+            this.lblUpdate.Size = new System.Drawing.Size(280, 22);
             this.lblUpdate.TabIndex = 9;
             this.lblUpdate.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -163,7 +164,7 @@
             this.lstBox.ItemHeight = 14;
             this.lstBox.Location = new System.Drawing.Point(12, 78);
             this.lstBox.Name = "lstBox";
-            this.lstBox.Size = new System.Drawing.Size(268, 144);
+            this.lstBox.Size = new System.Drawing.Size(280, 144);
             this.lstBox.TabIndex = 11;
             this.lstBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstBox_MouseDown);
             // 
@@ -174,7 +175,7 @@
             this.lblClipboard.BackColor = System.Drawing.Color.White;
             this.lblClipboard.Font = new System.Drawing.Font("Arial", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblClipboard.ForeColor = System.Drawing.Color.Gray;
-            this.lblClipboard.Location = new System.Drawing.Point(66, 3);
+            this.lblClipboard.Location = new System.Drawing.Point(128, 3);
             this.lblClipboard.Name = "lblClipboard";
             this.lblClipboard.Size = new System.Drawing.Size(136, 14);
             this.lblClipboard.TabIndex = 14;
@@ -190,15 +191,15 @@
             this.btnMin.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Silver;
             this.btnMin.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnMin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnMin.Location = new System.Drawing.Point(188, 14);
+            this.btnMin.Location = new System.Drawing.Point(200, 14);
             this.btnMin.Name = "btnMin";
             this.btnMin.Size = new System.Drawing.Size(25, 12);
             this.btnMin.TabIndex = 9;
             this.btnMin.TabStop = false;
             this.btnMin.Tag = "minimize";
             this.btnMin.UseVisualStyleBackColor = false;
-            this.btnMin.Click += new System.EventHandler(this.btnMin_Click);
-            this.btnMin.MouseHover += new System.EventHandler(this.btn_MouseOver);
+            this.btnMin.Click += new System.EventHandler(this.Min_Click);
+            this.btnMin.MouseHover += new System.EventHandler(this.MouseOver);
             // 
             // btnClose
             // 
@@ -208,15 +209,15 @@
             this.btnClose.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Firebrick;
             this.btnClose.FlatAppearance.MouseOverBackColor = System.Drawing.Color.DarkRed;
             this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnClose.Location = new System.Drawing.Point(262, 14);
+            this.btnClose.Location = new System.Drawing.Point(274, 14);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(25, 12);
             this.btnClose.TabIndex = 10;
             this.btnClose.TabStop = false;
             this.btnClose.Tag = "close";
             this.btnClose.UseVisualStyleBackColor = false;
-            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
-            this.btnClose.MouseHover += new System.EventHandler(this.btn_MouseOver);
+            this.btnClose.Click += new System.EventHandler(this.Close_Click);
+            this.btnClose.MouseHover += new System.EventHandler(this.MouseOver);
             // 
             // btnOnTop
             // 
@@ -226,67 +227,29 @@
             this.btnOnTop.FlatAppearance.MouseDownBackColor = System.Drawing.Color.LightSeaGreen;
             this.btnOnTop.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Teal;
             this.btnOnTop.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOnTop.Location = new System.Drawing.Point(225, 14);
+            this.btnOnTop.Location = new System.Drawing.Point(237, 14);
             this.btnOnTop.Name = "btnOnTop";
             this.btnOnTop.Size = new System.Drawing.Size(25, 12);
             this.btnOnTop.TabIndex = 11;
             this.btnOnTop.TabStop = false;
             this.btnOnTop.Tag = "ontop";
             this.btnOnTop.UseVisualStyleBackColor = false;
-            this.btnOnTop.Click += new System.EventHandler(this.btnOnTop_click);
-            this.btnOnTop.MouseHover += new System.EventHandler(this.btn_MouseOver);
+            this.btnOnTop.Click += new System.EventHandler(this.OnTop_click);
+            this.btnOnTop.MouseHover += new System.EventHandler(this.MouseOver);
             // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 268F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 392F));
             this.tableLayoutPanel1.Controls.Add(this.lblClipboard, 0, 0);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(12, 250);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(268, 20);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(280, 20);
             this.tableLayoutPanel1.TabIndex = 15;
-            // 
-            // btnDayNight
-            // 
-            this.btnDayNight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDayNight.BackColor = System.Drawing.Color.Transparent;
-            this.btnDayNight.BackgroundImage = global::YT2MP3.Properties.Resources.day;
-            this.btnDayNight.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnDayNight.FlatAppearance.BorderSize = 0;
-            this.btnDayNight.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Gray;
-            this.btnDayNight.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDayNight.Location = new System.Drawing.Point(255, 46);
-            this.btnDayNight.Name = "btnDayNight";
-            this.btnDayNight.Size = new System.Drawing.Size(25, 25);
-            this.btnDayNight.TabIndex = 12;
-            this.btnDayNight.TabStop = false;
-            this.btnDayNight.Tag = "day_night";
-            this.btnDayNight.UseVisualStyleBackColor = false;
-            this.btnDayNight.Click += new System.EventHandler(this.btnDayNight_Click);
-            this.btnDayNight.MouseHover += new System.EventHandler(this.btn_MouseOver);
-            // 
-            // btnConvert
-            // 
-            this.btnConvert.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnConvert.BackColor = System.Drawing.Color.Transparent;
-            this.btnConvert.BackgroundImage = global::YT2MP3.Properties.Resources.play_disabled;
-            this.btnConvert.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnConvert.Enabled = false;
-            this.btnConvert.FlatAppearance.BorderSize = 0;
-            this.btnConvert.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnConvert.Location = new System.Drawing.Point(245, 267);
-            this.btnConvert.Name = "btnConvert";
-            this.btnConvert.Size = new System.Drawing.Size(35, 35);
-            this.btnConvert.TabIndex = 0;
-            this.btnConvert.TabStop = false;
-            this.btnConvert.Tag = "convert";
-            this.btnConvert.UseVisualStyleBackColor = false;
-            this.btnConvert.Click += new System.EventHandler(this.btnConvert_Click);
-            this.btnConvert.MouseHover += new System.EventHandler(this.btn_MouseOver);
             // 
             // lblTitle
             // 
@@ -302,6 +265,63 @@
             this.lblTitle.Tag = "";
             this.lblTitle.Text = "YT2MP3";
             // 
+            // btnHistory
+            // 
+            this.btnHistory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnHistory.BackColor = System.Drawing.Color.Transparent;
+            this.btnHistory.BackgroundImage = global::YT2MP3.Properties.Resources.history;
+            this.btnHistory.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnHistory.FlatAppearance.BorderSize = 0;
+            this.btnHistory.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Gray;
+            this.btnHistory.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnHistory.Location = new System.Drawing.Point(236, 46);
+            this.btnHistory.Name = "btnHistory";
+            this.btnHistory.Size = new System.Drawing.Size(25, 25);
+            this.btnHistory.TabIndex = 18;
+            this.btnHistory.TabStop = false;
+            this.btnHistory.Tag = "history";
+            this.btnHistory.UseVisualStyleBackColor = false;
+            this.btnHistory.Click += new System.EventHandler(this.History_Click);
+            this.btnHistory.MouseHover += new System.EventHandler(this.MouseOver);
+            // 
+            // btnConvert
+            // 
+            this.btnConvert.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnConvert.BackColor = System.Drawing.Color.Transparent;
+            this.btnConvert.BackgroundImage = global::YT2MP3.Properties.Resources.play_disabled;
+            this.btnConvert.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnConvert.Enabled = false;
+            this.btnConvert.FlatAppearance.BorderSize = 0;
+            this.btnConvert.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnConvert.Location = new System.Drawing.Point(257, 267);
+            this.btnConvert.Name = "btnConvert";
+            this.btnConvert.Size = new System.Drawing.Size(35, 35);
+            this.btnConvert.TabIndex = 0;
+            this.btnConvert.TabStop = false;
+            this.btnConvert.Tag = "convert";
+            this.btnConvert.UseVisualStyleBackColor = false;
+            this.btnConvert.Click += new System.EventHandler(this.Convert_Click);
+            this.btnConvert.MouseHover += new System.EventHandler(this.MouseOver);
+            // 
+            // btnDayNight
+            // 
+            this.btnDayNight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDayNight.BackColor = System.Drawing.Color.Transparent;
+            this.btnDayNight.BackgroundImage = global::YT2MP3.Properties.Resources.day;
+            this.btnDayNight.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnDayNight.FlatAppearance.BorderSize = 0;
+            this.btnDayNight.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Gray;
+            this.btnDayNight.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDayNight.Location = new System.Drawing.Point(267, 46);
+            this.btnDayNight.Name = "btnDayNight";
+            this.btnDayNight.Size = new System.Drawing.Size(25, 25);
+            this.btnDayNight.TabIndex = 12;
+            this.btnDayNight.TabStop = false;
+            this.btnDayNight.Tag = "day_night";
+            this.btnDayNight.UseVisualStyleBackColor = false;
+            this.btnDayNight.Click += new System.EventHandler(this.DayNight_Click);
+            this.btnDayNight.MouseHover += new System.EventHandler(this.MouseOver);
+            // 
             // topBar
             // 
             this.topBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -310,7 +330,7 @@
             this.topBar.Location = new System.Drawing.Point(0, 5);
             this.topBar.Margin = new System.Windows.Forms.Padding(0);
             this.topBar.Name = "topBar";
-            this.topBar.Size = new System.Drawing.Size(292, 32);
+            this.topBar.Size = new System.Drawing.Size(304, 32);
             this.topBar.TabIndex = 17;
             this.topBar.TabStop = false;
             this.topBar.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Interface_MouseDown);
@@ -322,7 +342,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.ClientSize = new System.Drawing.Size(292, 310);
+            this.ClientSize = new System.Drawing.Size(304, 310);
+            this.Controls.Add(this.btnHistory);
             this.Controls.Add(this.btnConvert);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.btnDayNight);
@@ -373,6 +394,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.PictureBox topBar;
+        private System.Windows.Forms.Button btnHistory;
     }
 }
 

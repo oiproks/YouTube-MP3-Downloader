@@ -26,24 +26,12 @@ namespace YT2MP3
         int count = 1;
         bool converting = false;
         ToolTip tip = new ToolTip();
+        DownloadHistory history = new DownloadHistory();
 
         private enum ColourMode
         {
             Night,
             Day
-        }
-
-        static class OnTopMode
-        {
-            public const string False = "0";
-            public const string True = "1";
-        }
-
-        static class Settings
-        {
-            public const string OnTop = "onTop";
-            public const string DownloadFolder = "lastUsedFolder";
-            public const string Interface = "interface";
         }
         #endregion
 
@@ -76,6 +64,7 @@ namespace YT2MP3
             ContextMenu cm = new ContextMenu();
             cm.MenuItems.Add(new MenuItem("Copy URL", CopyUrl));
             cm.MenuItems.Add(new MenuItem("Remove", RemoveItem));
+            cm.MenuItems.Add(new MenuItem("Open in browser", OpenInBrowser));
             lstBox.ContextMenu = cm;
         }
         #endregion
@@ -225,13 +214,13 @@ namespace YT2MP3
         #endregion
 
         #region Button Interactions
-        private void flpDestination_MouseClick(object sender, MouseEventArgs e)
+        private void Destination_MouseClick(object sender, MouseEventArgs e)
         {
             lblUpdate.Text = string.Empty;
-            btnSelectFolder_Click(sender, e);
+            SelectFolder_Click(sender, e);
         }
 
-        private void btnSelectFolder_Click(object sender, EventArgs e)
+        private void SelectFolder_Click(object sender, EventArgs e)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
             dialog.InitialDirectory = "C:\\Users";
@@ -249,7 +238,7 @@ namespace YT2MP3
             }
         }
         
-        private void btnConvert_Click(object sender, EventArgs e)
+        private void Convert_Click(object sender, EventArgs e)
         {
             lblUpdate.Text = string.Format("Converting and downloading: 0/{0}", listCount);
             btnConvert.Enabled = false;
@@ -265,7 +254,7 @@ namespace YT2MP3
             thread.Start();
         }
 
-        private void btnDayNight_Click(object sender, EventArgs e)
+        private void DayNight_Click(object sender, EventArgs e)
         {
             string setting = ConfigurationManager.AppSettings["interface"];
 
@@ -283,17 +272,27 @@ namespace YT2MP3
             SaveConfig(Settings.Interface, setting);
         }
 
-        private void btnMin_Click(object sender, EventArgs e)
+        private void History_Click(object sender, EventArgs e)
+        {
+            // TODO: open new form with same lstBox, same contextMenu, draggable rows (edit panel to accept draggable objects [vl] or strings [urls])
+
+            foreach (VideoList vl in history.HistoryList)
+            {
+                Console.WriteLine(vl.Title + " - " + vl.URL);
+            }
+        }
+
+        private void Min_Click(object sender, EventArgs e)
         {
             WindowState = FormWindowState.Minimized;
         }
 
-        private void btnClose_Click(object sender, EventArgs e)
+        private void Close_Click(object sender, EventArgs e)
         {
             Close();
         }
 
-        private void btnOnTop_click(object sender, EventArgs e)
+        private void OnTop_click(object sender, EventArgs e)
         {
             string text, setting;
             int textWidth;
@@ -323,16 +322,16 @@ namespace YT2MP3
         #endregion
 
         #region Text Interactions
-        private void txtURL_TextChanged(object sender, EventArgs e)
+        private void URL_TextChanged(object sender, EventArgs e)
         {
             string URL = txtURL.Text.ToString();
             if (!string.IsNullOrEmpty(URL) && (URL.Contains("youtu.be") || URL.Contains("youtube.com")))
             {
-                txtURL_KeyDown(sender, new KeyEventArgs(Keys.Enter));
+                URL_KeyDown(sender, new KeyEventArgs(Keys.Enter));
             }
         }
 
-        private void txtURL_KeyDown(object sender, KeyEventArgs e)
+        private void URL_KeyDown(object sender, KeyEventArgs e)
         {
             string url = txtURL.Text.ToString();
             if (e.KeyCode == Keys.Enter && !string.IsNullOrEmpty(url))
@@ -369,7 +368,7 @@ namespace YT2MP3
             txtURL.Focus();
         }
 
-        private void btn_MouseOver(object sender, EventArgs e)
+        private void MouseOver(object sender, EventArgs e)
         {
             Button button = (Button)sender;
             string text = string.Empty;
@@ -399,11 +398,14 @@ namespace YT2MP3
                     break;
                 case "day_night":
                     string setting = ConfigurationManager.AppSettings["interface"];
-
                     if (setting.Equals("day"))
                         text = "Switch to night mode";
                     else
                         text = "Switch to day mode";
+                    x += button.Width;
+                    break;
+                case "history":
+                    text = history.HistoryList.Count > 0 ? string.Format("See history ({0} videos)", history.HistoryList.Count) : "History is empty";
                     x += button.Width;
                     break;
                 case "path":
@@ -468,7 +470,7 @@ namespace YT2MP3
 
                     string executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe");
 
-                    ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --extract-audio --audio-format mp3 --audio-quality 0 -o \"{1}\" {2}", executablePath, destinationPath, vl.URL));
+                    ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --extract-audio --audio-format mp3 --audio-quality 0 -o \"{1}\" {2}", executablePath, destinationPath, vl.URL)); // --metadata-from-title \"%(artist)s - %(title)s\" --embed-thumbnail 
 
                     procStartInfo.RedirectStandardOutput = true;
                     procStartInfo.UseShellExecute = false;
@@ -490,6 +492,8 @@ namespace YT2MP3
                     {
                         lstBox.Items.RemoveAt(0);
                     }));
+
+                    history.AddToHistory(vl);
                 }
 
                 workingList.Clear();
@@ -561,6 +565,27 @@ namespace YT2MP3
 
                 Thread thread = new Thread(PopUp);
                 thread.Start();
+            }
+        }
+        
+        private void OpenInBrowser(object sender, EventArgs e)
+        {
+            if (lstBox.SelectedIndex >= 0)
+            {
+                int selectedIndex = lstBox.SelectedIndex;
+                string URL;
+                if (converting)
+                {
+                    URL = workingList.Find(x => x.Title == Utils.CleanTitle(lstBox.Items[selectedIndex].ToString())).URL;
+                    if (string.IsNullOrEmpty(URL))
+                        URL = urlList.Find(x => x.Title == Utils.CleanTitle(lstBox.Items[selectedIndex].ToString())).URL;
+                }
+                else
+                {
+                    URL = urlList.Find(x => x.Title == Utils.CleanTitle(lstBox.Items[selectedIndex].ToString())).URL;
+                }
+
+                Process.Start(URL);
             }
         }
 

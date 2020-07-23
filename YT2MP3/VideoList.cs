@@ -13,7 +13,7 @@ namespace YT2MP3
 
         public VideoList (string title, string url)
         {
-            Title = title;
+            Title = Utils.CleanTitle(title);
             URL = url;
         }
     }
