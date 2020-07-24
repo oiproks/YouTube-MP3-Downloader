@@ -153,6 +153,7 @@
             // 
             // lstBox
             // 
+            this.lstBox.AllowDrop = true;
             this.lstBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -166,6 +167,8 @@
             this.lstBox.Name = "lstBox";
             this.lstBox.Size = new System.Drawing.Size(280, 144);
             this.lstBox.TabIndex = 11;
+            this.lstBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.mainPanel_DragDrop);
+            this.lstBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.mainPanel_DragEnter);
             this.lstBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstBox_MouseDown);
             // 
             // lblClipboard

@@ -674,5 +674,20 @@ namespace YT2MP3
             }));
         }
         #endregion
+
+        #region DropUrl
+        private void mainPanel_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.Text))
+                e.Effect = DragDropEffects.Copy;
+            else
+                e.Effect = DragDropEffects.None;
+        }
+
+        private void mainPanel_DragDrop(object sender, DragEventArgs e)
+        {
+            txtURL.Text = e.Data.GetData(DataFormats.Text).ToString();
+        }
+        #endregion
     }
 }
