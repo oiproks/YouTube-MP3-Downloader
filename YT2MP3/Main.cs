@@ -367,6 +367,7 @@ namespace YT2MP3
                 {
                     string videoID = url.Substring(url.IndexOf("?v=") + 3);
                     videoID = videoID.Contains("&list") ? videoID.Substring(0, videoID.IndexOf("&list")) : videoID;
+
                     string title = GetTitle(url);
 
                     lstBox.Items.Add(HttpUtility.HtmlDecode(title));
@@ -564,7 +565,9 @@ namespace YT2MP3
 
         private void RemoveItem(Object sender, System.EventArgs e)
         {
-            if (lstBox.SelectedIndex > 0)
+            if (converting && lstBox.SelectedIndex == 0)
+                return;
+            else 
             {
                 int selectedIndex = lstBox.SelectedIndex;
                 removeList.Add(new VideoList(lstBox.Items[selectedIndex].ToString(), ""));
