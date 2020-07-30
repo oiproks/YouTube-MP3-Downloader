@@ -7,10 +7,13 @@ The program makes use of [youtube-dl](https://github.com/ytdl-org/youtube-dl/).
 
 - Automatically checks for latest [youtube-dl](https://github.com/ytdl-org/youtube-dl/) updates on startup
 - Add multiple url videos to download list
-- Day/Night mode
-- Context menu on download list items with:
-    - Remove from list
+- Drag&Drop URLs to the main window
+- "Day/Night" mode
+- "Always on Top" mode
+- Context menu on download list and history items with:
+    - Remove from list (only download list)
     - Copy URL
+    - Open in browser
 
 
 ## Download YouTube MP3 Downloader
