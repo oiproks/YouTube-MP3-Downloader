@@ -216,7 +216,7 @@ namespace YT2MP3
         }
         #endregion
 
-        #region Button Interactions
+        #region Buttons Interactions
         private void Destination_MouseClick(object sender, MouseEventArgs e)
         {
             lblUpdate.Text = string.Empty;
@@ -291,6 +291,7 @@ namespace YT2MP3
 
                 hisPanel.Size = new Size(hisPanel.Width, this.Size.Height);
                 hisPanel.TopMost = TopMost;
+                hisPanel.Owner = this;
                 hisPanel.Show();
             } else
             {
@@ -333,6 +334,9 @@ namespace YT2MP3
                 textWidth = 60;
                 setting = OnTopMode.True;
             }
+
+            if (hisPanel != null)
+                hisPanel.TopMost = TopMost;
 
             tip.Dispose();
             tip = new ToolTip();
@@ -670,6 +674,7 @@ namespace YT2MP3
 
             btnDayNight.BackgroundImage = dayNight;
             btnDayNight.FlatAppearance.MouseOverBackColor = mouseOverBack;
+            btnHistory.FlatAppearance.MouseOverBackColor = mouseOverBack;
             btnSelectFolder.FlatAppearance.MouseOverBackColor = mouseOverBack;
             btnConvert.FlatAppearance.MouseOverBackColor = mouseOverBack;
 
@@ -700,5 +705,14 @@ namespace YT2MP3
             txtURL.Text = e.Data.GetData(DataFormats.Text).ToString();
         }
         #endregion
+
+        private void mainPanel_Activated(object sender, EventArgs e)
+        {
+            if (hisPanel != null && !hisPanel.showing)
+            {
+                hisPanel.Activate();
+                this.Focus();
+            }
+        }
     }
 }

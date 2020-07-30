@@ -370,6 +370,7 @@
             this.Name = "mainPanel";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "YT 2 MP3";
+            this.Activated += new System.EventHandler(this.mainPanel_Activated);
             this.Shown += new System.EventHandler(this.Form1_Load);
             this.flpDestination.ResumeLayout(false);
             this.flpDestination.PerformLayout();

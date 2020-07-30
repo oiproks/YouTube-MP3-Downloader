@@ -147,6 +147,7 @@
             this.Name = "History";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "History";
+            this.Activated += new System.EventHandler(this.History_Activated);
             this.Load += new System.EventHandler(this.History_Load);
             ((System.ComponentModel.ISupportInitialize)(this.topBar)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);

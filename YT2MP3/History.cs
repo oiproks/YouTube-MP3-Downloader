@@ -18,7 +18,9 @@ namespace YT2MP3
     {
         private DownloadHistory history;
         public bool positionSet = false;
+        public bool showing = false;
 
+        #region Init
         public History(DownloadHistory history)
         {
             InitializeComponent();
@@ -41,6 +43,7 @@ namespace YT2MP3
             cm.MenuItems.Add(new MenuItem("Open in browser", OpenInBrowser));
             lstBox.ContextMenu = cm;
         }
+        #endregion
 
         #region Resizing and Dragging
         bool mouseDown = false;
@@ -69,8 +72,8 @@ namespace YT2MP3
             mouseDown = false;
         }
 
-        private const int cGrip = 16;      // Grip size
-        private const int cBorder = 5;      // Border size
+        private const int cGrip = 16;   // Grip size
+        private const int cBorder = 5;  // Border size
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -115,10 +118,12 @@ namespace YT2MP3
         }
         #endregion
 
+        #region Button Interaction
         private void Close_Click(object sender, EventArgs e)
         {
             Close();
         }
+        #endregion
 
         #region Song List Context Menu
         private void lstBox_MouseDown(object sender, MouseEventArgs e)
@@ -174,6 +179,7 @@ namespace YT2MP3
         }
         #endregion
 
+        #region Utils
         public void SetColors(ColourMode style)
         {
             if (style == ColourMode.Night)
@@ -188,6 +194,12 @@ namespace YT2MP3
                 lstBox.BackColor = Color.White;
                 this.BackColor = Color.FromKnownColor(KnownColor.Control);
             }
+        }
+        #endregion
+
+        private void History_Activated(object sender, EventArgs e)
+        {
+            showing = true;
         }
     }
 }
