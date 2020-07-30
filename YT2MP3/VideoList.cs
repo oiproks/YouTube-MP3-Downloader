@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace YT2MP3
 {
-    class VideoList
+    public class VideoList
     {
         public string Title { get; set; }
         public string URL { get; set; }

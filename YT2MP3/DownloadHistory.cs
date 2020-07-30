@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace YT2MP3
 {
-    class DownloadHistory
+    public class DownloadHistory
     {
         private string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "history.dat");
 

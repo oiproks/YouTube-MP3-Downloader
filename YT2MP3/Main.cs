@@ -27,12 +27,7 @@ namespace YT2MP3
         bool converting = false;
         ToolTip tip = new ToolTip();
         DownloadHistory history = new DownloadHistory();
-
-        private enum ColourMode
-        {
-            Night,
-            Day
-        }
+        History hisPanel;
         #endregion
 
         #region Init
@@ -51,7 +46,7 @@ namespace YT2MP3
 
             TopMost = !ConfigurationManager.AppSettings[Settings.OnTop].Equals(OnTopMode.False);
 
-            SetDestinationPath(ConfigurationManager.AppSettings[Settings.DownloadFolder], false);
+            lblDestination.Text = Utils.SetDestinationPath(ConfigurationManager.AppSettings[Settings.DownloadFolder], out destinationPath, false);
 
             CheckUpdate();
 
@@ -76,14 +71,22 @@ namespace YT2MP3
         {
             mouseDown = true;
             lastLocation = e.Location;
+            if (hisPanel != null && !hisPanel.positionSet)
+            {
+                hisPanel.lastLocation = e.Location;
+            }
         }
 
         private void Interface_MouseMove(object sender, MouseEventArgs e)
         {
             if (mouseDown)
             {
-                Location = new Point(
-                    (Location.X - lastLocation.X) + e.X, (Location.Y - lastLocation.Y) + e.Y);
+                Location = new Point((Location.X - lastLocation.X) + e.X, (Location.Y - lastLocation.Y) + e.Y);
+
+                if (hisPanel != null && !hisPanel.positionSet)
+                {
+                    hisPanel.Location = new Point((hisPanel.Location.X - hisPanel.lastLocation.X) + e.X, (hisPanel.Location.Y - hisPanel.lastLocation.Y) + e.Y);
+                }
 
                 Update();
             }
@@ -228,7 +231,7 @@ namespace YT2MP3
             dialog.Title = "Select destination folder";
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                SetDestinationPath(dialog.FileName);
+                lblDestination.Text = Utils.SetDestinationPath(dialog.FileName, out destinationPath);
 
                 if (urlList.Count > 0)
                 {
@@ -269,17 +272,36 @@ namespace YT2MP3
                 setting = "day";
             }
 
-            SaveConfig(Settings.Interface, setting);
+            Utils.SaveConfig(Settings.Interface, setting);
         }
 
         private void History_Click(object sender, EventArgs e)
         {
-            // TODO: open new form with same lstBox, same contextMenu, draggable rows (edit panel to accept draggable objects [vl] or strings [urls])
-
-            foreach (VideoList vl in history.HistoryList)
+            if (hisPanel == null)
             {
-                Console.WriteLine(vl.Title + " - " + vl.URL);
+                hisPanel = new History(history);
+                hisPanel.FormClosed += new FormClosedEventHandler(HistoryClosed);
+
+                hisPanel.StartPosition = FormStartPosition.Manual;
+
+                if (this.Location.X + this.Width <= Screen.PrimaryScreen.Bounds.Width - hisPanel.Size.Width)
+                    hisPanel.Location = new Point(this.Location.X + this.Width + 10, this.Location.Y);
+                else
+                    hisPanel.Location = new Point(this.Location.X - 10 - hisPanel.Width, this.Location.Y);
+
+                hisPanel.Size = new Size(hisPanel.Width, this.Size.Height);
+                hisPanel.TopMost = TopMost;
+                hisPanel.Show();
+            } else
+            {
+                hisPanel.Close();
+                hisPanel = null;
             }
+        }
+
+        private void HistoryClosed(object sender, EventArgs e)
+        {
+            hisPanel = null;
         }
 
         private void Min_Click(object sender, EventArgs e)
@@ -317,7 +339,7 @@ namespace YT2MP3
             int yLoc = txtURL.Location.Y - (txtURL.Height);
             tip.Show(text, this, (this.Width / 2) - textWidth, yLoc, 2000);
 
-            SaveConfig(Settings.OnTop, setting);
+            Utils.SaveConfig(Settings.OnTop, setting);
         }
         #endregion
 
@@ -405,7 +427,10 @@ namespace YT2MP3
                     x += button.Width;
                     break;
                 case "history":
-                    text = history.HistoryList.Count > 0 ? string.Format("See history ({0} videos)", history.HistoryList.Count) : "History is empty";
+                    if (hisPanel == null)
+                        text = history.HistoryList.Count > 0 ? string.Format("See history ({0} videos)", history.HistoryList.Count) : "History is empty";
+                    else
+                        text = "Close history panel.";
                     x += button.Width;
                     break;
                 case "path":
@@ -548,6 +573,7 @@ namespace YT2MP3
 
         private void CopyUrl(object sender, EventArgs e)
         {
+            string popUpText = string.Empty;
             if (lstBox.SelectedIndex >= 0)
             {
                 int selectedIndex = lstBox.SelectedIndex;
@@ -563,9 +589,13 @@ namespace YT2MP3
 
                 Clipboard.SetText(URL);
 
-                Thread thread = new Thread(PopUp);
-                thread.Start();
+                popUpText = "URL copied to clipboard";
             }
+            else
+                popUpText = "Nothing selected";
+
+            Thread thread = new Thread(new ParameterizedThreadStart(PopUp));
+            thread.Start(popUpText);
         }
         
         private void OpenInBrowser(object sender, EventArgs e)
@@ -589,10 +619,11 @@ namespace YT2MP3
             }
         }
 
-        private void PopUp()
+        private void PopUp(object text)
         {
             this.Invoke(new Action(() =>
             {
+                lblClipboard.Text = text.ToString();
                 lblClipboard.Visible = true;
             }));
 
@@ -606,21 +637,6 @@ namespace YT2MP3
         #endregion
 
         #region Utils
-        private void SetDestinationPath(string folderPath, bool save = true)
-        {
-            if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
-            {
-                if (save)
-                    SaveConfig(Settings.DownloadFolder, folderPath);
-
-                destinationPath = folderPath;
-                string folder = destinationPath.Substring(destinationPath.LastIndexOf("\\") + 1);
-                lblDestination.Text = folder;
-
-                destinationPath = Path.Combine(destinationPath, "%(title)s.%(ext)s");
-            }
-        }
-
         private void SetColors(ColourMode style)
         {
             Color foreColor, backcolor, mouseOverBack;
@@ -656,14 +672,9 @@ namespace YT2MP3
             btnDayNight.FlatAppearance.MouseOverBackColor = mouseOverBack;
             btnSelectFolder.FlatAppearance.MouseOverBackColor = mouseOverBack;
             btnConvert.FlatAppearance.MouseOverBackColor = mouseOverBack;
-        }
 
-        private void SaveConfig(string setting, string value)
-        {
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            config.AppSettings.Settings[setting].Value = value;
-            config.Save(ConfigurationSaveMode.Modified);
-            ConfigurationManager.RefreshSection("appSettings");
+            if (hisPanel != null)
+                hisPanel.SetColors(style);
         }
 
         private void UpdateLabel(object text)
