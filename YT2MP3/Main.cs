@@ -19,14 +19,14 @@ namespace YT2MP3
     {
         #region Variables
         string destinationPath;
-        List<VideoList> urlList;
-        List<VideoList> workingList;
-        List<VideoList> removeList;
+        List<VideoInfos> urlList;
+        List<VideoInfos> workingList;
+        List<VideoInfos> removeList;
         int listCount = 0;
         int count = 1;
         bool converting = false;
         ToolTip tip = new ToolTip();
-        DownloadHistory history = new DownloadHistory();
+        VideoHistory history = new VideoHistory();
         History hisPanel;
         #endregion
 
@@ -52,9 +52,9 @@ namespace YT2MP3
 
             txtURL.Focus();
 
-            urlList = new List<VideoList>();
-            workingList = new List<VideoList>();
-            removeList = new List<VideoList>();
+            urlList = new List<VideoInfos>();
+            workingList = new List<VideoInfos>();
+            removeList = new List<VideoInfos>();
 
             ContextMenu cm = new ContextMenu();
             cm.MenuItems.Add(new MenuItem("Copy URL", CopyUrl));
@@ -248,7 +248,7 @@ namespace YT2MP3
             btnConvert.BackgroundImage = Resources.play_disabled;
             flpDestination.Enabled = false;
 
-            foreach (VideoList url in urlList)
+            foreach (VideoInfos url in urlList)
                 workingList.Add(url);
 
             urlList.Clear();
@@ -372,7 +372,7 @@ namespace YT2MP3
 
                     lstBox.Items.Add(HttpUtility.HtmlDecode(title));
 
-                    urlList.Add(new VideoList(HttpUtility.HtmlDecode(title), url));
+                    urlList.Add(new VideoInfos(HttpUtility.HtmlDecode(title), url));
 
                     listCount++;
                     if (converting)
@@ -487,11 +487,11 @@ namespace YT2MP3
             while (true)
             {
                 converting = true;
-                foreach (VideoList vl in workingList)
+                foreach (VideoInfos vi in workingList)
                 {
-                    if (removeList.FindAll(x => x.Title == vl.Title).Count > 0)
+                    if (removeList.FindAll(x => x.Title == vi.Title).Count > 0)
                     {
-                        removeList.Remove(removeList.Find(x => x.Title == vl.Title));
+                        removeList.Remove(removeList.Find(x => x.Title == vi.Title));
                         continue;
                     }
 
@@ -500,7 +500,7 @@ namespace YT2MP3
 
                     string executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe");
 
-                    ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --extract-audio --audio-format mp3 --audio-quality 0 -o \"{1}\" {2}", executablePath, destinationPath, vl.URL)); // --metadata-from-title \"%(artist)s - %(title)s\" --embed-thumbnail 
+                    ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --extract-audio --audio-format mp3 --audio-quality 0 -o \"{1}\" {2}", executablePath, destinationPath, vi.URL)); // --metadata-from-title \"%(artist)s - %(title)s\" --embed-thumbnail 
 
                     procStartInfo.RedirectStandardOutput = true;
                     procStartInfo.UseShellExecute = false;
@@ -523,7 +523,10 @@ namespace YT2MP3
                         lstBox.Items.RemoveAt(0);
                     }));
 
-                    history.AddToHistory(vl);
+                    history.AddToHistory(vi);
+
+                    if (hisPanel != null)
+                        hisPanel.PopulateList(history.HistoryList);
                 }
 
                 workingList.Clear();
@@ -534,7 +537,7 @@ namespace YT2MP3
                 }
                 else
                 {
-                    foreach (VideoList url in urlList)
+                    foreach (VideoInfos url in urlList)
                         workingList.Add(url);
 
                     urlList.Clear();
@@ -570,7 +573,7 @@ namespace YT2MP3
             else 
             {
                 int selectedIndex = lstBox.SelectedIndex;
-                removeList.Add(new VideoList(lstBox.Items[selectedIndex].ToString(), ""));
+                removeList.Add(new VideoInfos(lstBox.Items[selectedIndex].ToString(), ""));
                 lstBox.Items.Remove(lstBox.Items[selectedIndex]);
                 listCount--;
                 if (converting)

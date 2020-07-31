@@ -1,47 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using YT2MP3.Properties;
 
 namespace YT2MP3
 {
     public partial class History : Form
     {
-        private DownloadHistory history;
+        private VideoHistory history;
         public bool positionSet = false;
         public bool showing = false;
 
         #region Init
-        public History(DownloadHistory history)
+        public History(VideoHistory history)
         {
             InitializeComponent();
 
             // Testing
             this.DoubleBuffered = true;
             this.SetStyle(ControlStyles.ResizeRedraw, true);
-
             this.history = history;
+
+            PopulateList(history.HistoryList);
         }
+
         private void History_Load(object sender, EventArgs e)
         {
             SetColors(ConfigurationManager.AppSettings[Settings.Interface].Equals("day") ? ColourMode.Day : ColourMode.Night);
 
-            foreach (VideoList vl in history.HistoryList)
-                lstBox.Items.Add(vl.Title);
-
             ContextMenu cm = new ContextMenu();
             cm.MenuItems.Add(new MenuItem("Copy URL", CopyUrl));
             cm.MenuItems.Add(new MenuItem("Open in browser", OpenInBrowser));
+            cm.MenuItems.Add(new MenuItem("Remove item", RemoveItem));
             lstBox.ContextMenu = cm;
+        }
+
+        public void PopulateList(List<VideoInfos> viList)
+        {
+            lstBox.Items.Clear();
+
+            viList = viList.OrderBy(x => x.Title).ToList();
+
+            foreach (VideoInfos vi in viList)
+                lstBox.Items.Add(vi.Title);
         }
         #endregion
 
@@ -154,12 +160,22 @@ namespace YT2MP3
         {
             if (lstBox.SelectedIndex >= 0)
             {
-                int selectedIndex = lstBox.SelectedIndex;
-                string URL;
-                URL = history.HistoryList.Find(x => x.Title == Utils.CleanTitle(lstBox.Items[selectedIndex].ToString())).URL;
+                string URL = GetUrl(lstBox.SelectedIndex);
 
                 Process.Start(URL);
             }
+        }
+
+        private void RemoveItem(Object sender, System.EventArgs e)
+        {
+            int index = lstBox.SelectedIndex;
+            history.RemoveFromHistory(new VideoInfos(lstBox.Items[index].ToString(), GetUrl(index)));
+            lstBox.Items.Remove(lstBox.Items[index]);
+        }
+
+        private string GetUrl(int index)
+        {
+            return history.HistoryList.Find(x => x.Title == Utils.CleanTitle(lstBox.Items[index].ToString())).URL;
         }
 
         private void PopUp(object text)
