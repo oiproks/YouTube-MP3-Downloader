@@ -93,17 +93,17 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="VideoHistory.cs" />
-    <Compile Include="History.cs">
+    <Compile Include="Objects\VideoHistory.cs" />
+    <Compile Include="Forms\History.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="History.Designer.cs">
+    <Compile Include="Forms\History.Designer.cs">
       <DependentUpon>History.cs</DependentUpon>
     </Compile>
-    <Compile Include="Main.cs">
+    <Compile Include="Forms\Main.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Main.Designer.cs">
+    <Compile Include="Forms\Main.Designer.cs">
       <DependentUpon>Main.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
@@ -113,12 +113,17 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Utils.cs" />
-    <Compile Include="VideoInfos.cs" />
-    <EmbeddedResource Include="History.resx">
+    <Compile Include="Various\VideoFormats.cs" />
+    <Compile Include="Various\CommandList.cs" />
+    <Compile Include="Various\Commands.cs" />
+    <Compile Include="Various\AudioFormats.cs" />
+    <Compile Include="Various\Parameter.cs" />
+    <Compile Include="Various\Utils.cs" />
+    <Compile Include="Objects\VideoInfos.cs" />
+    <EmbeddedResource Include="Forms\History.resx">
       <DependentUpon>History.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Main.resx">
+    <EmbeddedResource Include="Forms\Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

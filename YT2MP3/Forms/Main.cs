@@ -12,16 +12,20 @@ using System.Threading;
 using System.Web;
 using System.Windows.Forms;
 using YT2MP3.Properties;
+using YT2MP3.Statics;
+using YT2MP3.Various;
+using static YT2MP3.Statics.Commands;
 
 namespace YT2MP3
 {
     public partial class mainPanel : Form
     {
         #region Variables
-        string destinationPath;
+        string destinationPath, executablePath;
         List<VideoInfos> urlList;
         List<VideoInfos> workingList;
         List<VideoInfos> removeList;
+        CommandList commandsList;
         int listCount = 0;
         int count = 1;
         bool converting = false;
@@ -55,6 +59,8 @@ namespace YT2MP3
             urlList = new List<VideoInfos>();
             workingList = new List<VideoInfos>();
             removeList = new List<VideoInfos>();
+
+            executablePath = Utils.AddQuotesIfRequired(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe"));
 
             ContextMenu cm = new ContextMenu();
             cm.MenuItems.Add(new MenuItem("Copy URL", CopyUrl));
@@ -252,6 +258,13 @@ namespace YT2MP3
                 workingList.Add(url);
 
             urlList.Clear();
+
+            // Use the following form with new advanced interface
+            commandsList = new CommandList();
+            commandsList.AddCommand(Com.AudioFormat, new Parameter(AudioFormats.MP3));
+            commandsList.AddCommand(Com.ExtractAudio);
+            commandsList.AddCommand(Com.AudioQuality, new Parameter(0));
+            commandsList.AddCommand(Com.Output, new Parameter(destinationPath));
 
             Thread thread = new Thread(Download);
             thread.Start();
@@ -460,9 +473,7 @@ namespace YT2MP3
         #region Download Management
         private string GetTitle(string url)
         {
-            string executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe");
-
-            ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --get-title {1}", executablePath, url));
+            ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + $"{executablePath} --get-title {url}");
 
             procStartInfo.RedirectStandardOutput = true;
             procStartInfo.UseShellExecute = false;
@@ -484,6 +495,8 @@ namespace YT2MP3
         private void Download()
         {
             Thread thread;
+            bool error = false;
+
             while (true)
             {
                 converting = true;
@@ -498,23 +511,23 @@ namespace YT2MP3
                     thread = new Thread(new ParameterizedThreadStart(UpdateLabel));
                     thread.Start(string.Format("Converting and downloading: {0}/{1}", count, listCount));
 
-                    string executablePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe");
+                    string command = Commands.BuildCommandLine(executablePath, commandsList, vi.URL);
 
-                    ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + string.Format("{0} --extract-audio --audio-format mp3 --audio-quality 0 -o \"{1}\" {2}", executablePath, destinationPath, vi.URL)); // --metadata-from-title \"%(artist)s - %(title)s\" --embed-thumbnail 
+                    ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", $"{command}");
 
                     procStartInfo.RedirectStandardOutput = true;
                     procStartInfo.UseShellExecute = false;
                     procStartInfo.CreateNoWindow = true;
+                    procStartInfo.RedirectStandardError = true;
 
                     using (Process process = new Process())
                     {
                         process.StartInfo = procStartInfo;
                         process.Start();
-
+                        
                         process.WaitForExit();
 
-                        string result = process.StandardOutput.ReadToEnd();
-                        Console.WriteLine(result);
+                        error = !string.IsNullOrEmpty(process.StandardError.ReadToEnd());
                     }
 
                     count++;
@@ -546,7 +559,18 @@ namespace YT2MP3
             converting = false;
 
             thread = new Thread(new ParameterizedThreadStart(UpdateLabel));
-            thread.Start("Conversion complete. File downloaded.");
+            string labelResult = string.Empty;
+            if (!error)
+                labelResult = "Conversion complete. File downloaded.";
+            else
+            {
+                if (executablePath.Contains(" "))
+                    labelResult = "ERROR! Program path contains white spaces.";
+                else
+                    labelResult = "Error occurred during file download.";
+            }
+
+            thread.Start(labelResult);
 
             this.Invoke(new Action(() =>
             {
@@ -674,9 +698,13 @@ namespace YT2MP3
             lblDestination.ForeColor = foreColor;
             txtURL.ForeColor = foreColor;
             lstBox.ForeColor = foreColor;
+            chkAudio.ForeColor = foreColor;
+            chkVideo.ForeColor = foreColor;
+            flpSettings.ForeColor = foreColor;
 
             txtURL.BackColor = backcolor;
             lstBox.BackColor = backcolor;
+            flpSettings.BackColor = backcolor;
 
             btnDayNight.BackgroundImage = dayNight;
             btnDayNight.FlatAppearance.MouseOverBackColor = mouseOverBack;
