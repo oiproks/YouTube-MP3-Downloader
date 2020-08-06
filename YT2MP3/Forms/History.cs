@@ -15,6 +15,7 @@ namespace YT2MP3
         private VideoHistory history;
         public bool positionSet = false;
         public bool showing = false;
+        public bool isPositionRight = false;
 
         #region Init
         public History(VideoHistory history)

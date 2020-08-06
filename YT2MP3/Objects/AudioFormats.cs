@@ -23,5 +23,22 @@ namespace YT2MP3.Various
         public static AudioFormats WAV { get { return new AudioFormats("wav"); } }
 
         public static AudioFormats BEST { get { return new AudioFormats("best"); } }
+
+        public static List<string> GetAllFormats()
+        {
+            return new List<string>
+            {
+                MP3.Value,
+                AAC.Value,
+                FLAC.Value,
+                M4A.Value,
+                WAV.Value
+            };
+        }
+
+        public static AudioFormats GetAudioFormat(string format)
+        {
+            return new AudioFormats(format.ToLower());
+        }
     }
 }

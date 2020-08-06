@@ -21,5 +21,22 @@ namespace YT2MP3.Various
         public static VideoFormats P720 { get { return new VideoFormats("720"); } }
 
         public static VideoFormats P480 { get { return new VideoFormats("480"); } }
+
+        public static List<string> GetAllFormats()
+        {
+            return new List<string>
+            {
+                P480.Value,
+                P720.Value,
+                P1080.Value,
+                P1440.Value,
+                P2160.Value
+            };
+        }
+
+        public static VideoFormats GetVideoFormat(string format)
+        {
+            return new VideoFormats(format.ToLower());
+        }
     }
 }

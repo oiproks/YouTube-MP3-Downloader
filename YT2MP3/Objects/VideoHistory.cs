@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using YT2MP3.Various;
 
 namespace YT2MP3
 {
@@ -36,20 +37,13 @@ namespace YT2MP3
 
         public void AddToHistory(VideoInfos vi) 
         {
-            int counter = 1;
-            while (true) {
-                if (HistoryList.Find(x => x.Title == vi.Title) == null)
-                {
-                    HistoryList.Add(vi);
-                    break;
-                } else
-                {
-                    vi.Title += $"_{counter}";
-                    counter++;
-                }
+            if (HistoryList.Find(x => x.Title == vi.Title) == null && HistoryList.Find(x => x.URL == vi.URL) == null)
+            {
+                HistoryList.Add(vi);
+                File.AppendAllText(path, CreateLine(vi));
+                
             }
-
-            File.AppendAllText(path, CreateLine(vi));
+            Logger.WriteSuccess($"{vi.Title} | ({vi.URL})");
         }
 
         public void RemoveFromHistory(VideoInfos vi)

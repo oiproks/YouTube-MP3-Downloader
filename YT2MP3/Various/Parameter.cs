@@ -9,15 +9,22 @@ namespace YT2MP3.Various
 {
     public class Parameter
     {
-        public AudioFormats format { get; set; }
+        public AudioFormats audioFormat { get; set; }
+        
+        public VideoFormats videoFormat { get; set; }
 
         public int quality { get; set; }
 
         public string destination { get; set; }
 
+        public Parameter(VideoFormats value)
+        {
+            videoFormat = value;
+        }
+
         public Parameter(AudioFormats value)
         {
-            format = value;
+            audioFormat = value;
         }
 
         public Parameter(int value)

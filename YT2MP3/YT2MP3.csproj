@@ -113,10 +113,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Various\VideoFormats.cs" />
+    <Compile Include="Various\Logger.cs" />
+    <Compile Include="Objects\VideoFormats.cs" />
     <Compile Include="Various\CommandList.cs" />
     <Compile Include="Various\Commands.cs" />
-    <Compile Include="Various\AudioFormats.cs" />
+    <Compile Include="Objects\AudioFormats.cs" />
     <Compile Include="Various\Parameter.cs" />
     <Compile Include="Various\Utils.cs" />
     <Compile Include="Objects\VideoInfos.cs" />

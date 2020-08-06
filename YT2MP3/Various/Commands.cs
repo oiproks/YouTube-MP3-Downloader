@@ -15,7 +15,8 @@ namespace YT2MP3.Statics
             ExtractAudio,
             AudioFormat,
             AudioQuality,
-            Output
+            Output,
+            VideoFormat
         };
 
         internal static string BuildCommandLine(string execPath, CommandList commandList, string URL)
@@ -26,7 +27,7 @@ namespace YT2MP3.Statics
                 switch (command.Item1)
                 {
                     case Com.AudioFormat:
-                        line = string.Concat(line, AudioFormat(command.Item2.format));
+                        line = string.Concat(line, AudioFormat(command.Item2.audioFormat));
                         break;
                     case Com.ExtractAudio:
                         line = string.Concat(line, ExtractAudio);
@@ -36,6 +37,9 @@ namespace YT2MP3.Statics
                         break;
                     case Com.NoPlaylist:
                         line = string.Concat(line, NoPlaylist);
+                        break;
+                    case Com.VideoFormat:
+                        line = string.Concat(line, VideoFormat(command.Item2.videoFormat));
                         break;
                     case Com.Output:
                         line = string.Concat(line, Output(command.Item2.destination));
@@ -80,7 +84,7 @@ namespace YT2MP3.Statics
         /// <param name="format"></param>
         /// <returns></returns>
         internal static string VideoFormat(VideoFormats format) {
-            return $" -f bestvideo[height<=?{format.Value}]+bestaudio/best";
+            return $" -f \"bestvideo[height<=?{format.Value}]+bestaudio/best\"";
         }
 
         /// <summary>

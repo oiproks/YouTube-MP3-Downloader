@@ -18,10 +18,10 @@ using static YT2MP3.Statics.Commands;
 
 namespace YT2MP3
 {
-    public partial class mainPanel : Form
+    public partial class MainPanel : Form
     {
         #region Variables
-        string destinationPath, executablePath;
+        string destinationPath = string.Empty, executablePath;
         List<VideoInfos> urlList;
         List<VideoInfos> workingList;
         List<VideoInfos> removeList;
@@ -35,7 +35,7 @@ namespace YT2MP3
         #endregion
 
         #region Init
-        public mainPanel()
+        public MainPanel()
         {
             InitializeComponent();
         
@@ -59,6 +59,7 @@ namespace YT2MP3
             urlList = new List<VideoInfos>();
             workingList = new List<VideoInfos>();
             removeList = new List<VideoInfos>();
+            commandsList = new CommandList();
 
             executablePath = Utils.AddQuotesIfRequired(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embedded", "youtube-dl.exe"));
 
@@ -110,6 +111,20 @@ namespace YT2MP3
         {
             Rectangle rc = new Rectangle(this.ClientSize.Width - cGrip, this.ClientSize.Height - cGrip, cGrip, cGrip);
             ControlPaint.DrawSizeGrip(e.Graphics, this.BackColor, rc);
+
+
+            if (hisPanel != null && !hisPanel.positionSet)
+            {
+                if (hisPanel.isPositionRight)
+                {
+                    if (Location.X + Width + 10 >= hisPanel.Location.X || Location.X + Width - 10 <= hisPanel.Location.X)
+                        hisPanel.Location = new Point(Location.X + Width + 10, hisPanel.Location.Y);
+                } else
+                {
+                    if (hisPanel.Location.X + hisPanel.Width + 10 >= Location.X || hisPanel.Location.X + hisPanel.Width - 10 <= Location.X)
+                        hisPanel.Location = new Point(Location.X - 10 - hisPanel.Width, hisPanel.Location.Y);
+                }
+            }
         }
 
         protected override void WndProc(ref Message m)
@@ -211,7 +226,8 @@ namespace YT2MP3
 
         void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            progBar.Value = e.ProgressPercentage;
+            //progBar.Value = e.ProgressPercentage;
+            UpdateProgressBar(e.ProgressPercentage);
         }
 
         void wc_DownloadDataCompleted(object sender, AsyncCompletedEventArgs e)
@@ -239,31 +255,44 @@ namespace YT2MP3
             {
                 lblDestination.Text = Utils.SetDestinationPath(dialog.FileName, out destinationPath);
 
-                if (urlList.Count > 0)
-                {
-                    btnConvert.Enabled = true;
-                    btnConvert.BackgroundImage = Resources.play;
-                }
+                if (urlList.Count > 0 && (chkAudio.Checked || chkVideo.Checked))
+                        EnableConvert(true);
             }
         }
-        
+
+        private void EnableConvert(bool enable)
+        {
+            btnConvert.Enabled = enable;
+            btnConvert.BackgroundImage = enable ? Resources.play : Resources.play_disabled;
+        }
+
         private void Convert_Click(object sender, EventArgs e)
         {
             lblUpdate.Text = string.Format("Converting and downloading: 0/{0}", listCount);
-            btnConvert.Enabled = false;
-            btnConvert.BackgroundImage = Resources.play_disabled;
+            EnableConvert(false);
             flpDestination.Enabled = false;
 
             foreach (VideoInfos url in urlList)
                 workingList.Add(url);
 
             urlList.Clear();
+            flpSettings.Enabled = false;
 
-            // Use the following form with new advanced interface
-            commandsList = new CommandList();
-            commandsList.AddCommand(Com.AudioFormat, new Parameter(AudioFormats.MP3));
-            commandsList.AddCommand(Com.ExtractAudio);
-            commandsList.AddCommand(Com.AudioQuality, new Parameter(0));
+            Parameter param;
+
+            if (chkAudio.Checked)
+            {
+                commandsList.AddCommand(Com.ExtractAudio);
+                commandsList.AddCommand(Com.AudioQuality, new Parameter(0));
+
+                param = new Parameter(AudioFormats.GetAudioFormat(cmbOptions.SelectedItem.ToString()));
+            }
+            else
+                param = new Parameter(VideoFormats.GetVideoFormat(cmbOptions.SelectedItem.ToString()));
+
+            commandsList.AddCommand(chkVideo.Checked ? Com.VideoFormat : Com.AudioFormat, param);
+
+            // Output
             commandsList.AddCommand(Com.Output, new Parameter(destinationPath));
 
             Thread thread = new Thread(Download);
@@ -298,9 +327,15 @@ namespace YT2MP3
                 hisPanel.StartPosition = FormStartPosition.Manual;
 
                 if (this.Location.X + this.Width <= Screen.PrimaryScreen.Bounds.Width - hisPanel.Size.Width)
+                {
                     hisPanel.Location = new Point(this.Location.X + this.Width + 10, this.Location.Y);
+                    hisPanel.isPositionRight = true;
+                }
                 else
+                {
                     hisPanel.Location = new Point(this.Location.X - 10 - hisPanel.Width, this.Location.Y);
+                    hisPanel.isPositionRight = false;
+                }
 
                 hisPanel.Size = new Size(hisPanel.Width, this.Size.Height);
                 hisPanel.TopMost = TopMost;
@@ -358,6 +393,54 @@ namespace YT2MP3
 
             Utils.SaveConfig(Settings.OnTop, setting);
         }
+
+        private void AudioCheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox chk = (CheckBox)sender;
+
+            if (chk.Checked)
+            {
+                cmbOptions.Items.Clear();
+                chkVideo.Checked = false;
+                foreach (string format in AudioFormats.GetAllFormats())
+                    cmbOptions.Items.Add(format.ToUpper());
+
+                cmbOptions.SelectedIndex = 0;
+                cmbOptions.Enabled = true;
+
+                if (!string.IsNullOrEmpty(destinationPath) && urlList.Count > 0)
+                    EnableConvert(true);
+            }
+            else if (!chkAudio.Checked)
+            {
+                cmbOptions.Items.Clear();
+                EnableConvert(false);
+            }
+        }
+
+        private void VideoCheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox chk = (CheckBox)sender;
+
+            if (chk.Checked)
+            {
+                cmbOptions.Items.Clear();
+                chkAudio.Checked = false;
+                foreach (string format in VideoFormats.GetAllFormats())
+                    cmbOptions.Items.Add(format.ToUpper());
+
+                cmbOptions.SelectedIndex = 0;
+                cmbOptions.Enabled = true;
+
+                if (!string.IsNullOrEmpty(destinationPath) && urlList.Count > 0)
+                    EnableConvert(true);
+            }
+            else if (!chkVideo.Checked)
+            {
+                cmbOptions.Items.Clear();
+                EnableConvert(false);
+            }
+        }
         #endregion
 
         #region Text Interactions
@@ -378,10 +461,15 @@ namespace YT2MP3
                 txtURL.Enabled = false;
                 try
                 {
-                    string videoID = url.Substring(url.IndexOf("?v=") + 3);
-                    videoID = videoID.Contains("&list") ? videoID.Substring(0, videoID.IndexOf("&list")) : videoID;
+                    url = url.Contains("&list") ? url.Substring(0, url.IndexOf("&list")) : url;
+                    url = url.Contains("&feature") ? url.Substring(0, url.IndexOf("&feature")) : url;
 
                     string title = GetTitle(url);
+
+                    if (string.IsNullOrEmpty(title))
+                    {
+                        throw new Exception("Can not reach the URL. Probably geografically blocked");
+                    }
 
                     lstBox.Items.Add(HttpUtility.HtmlDecode(title));
 
@@ -393,15 +481,15 @@ namespace YT2MP3
 
                     txtURL.Text = string.Empty;
 
-                    if (!btnConvert.Enabled && !string.IsNullOrEmpty(destinationPath) && !converting)
+                    if (!btnConvert.Enabled && !string.IsNullOrEmpty(destinationPath) && (chkAudio.Checked || chkVideo.Checked) && !converting)
                     {
-                        btnConvert.Enabled = true;
-                        btnConvert.BackgroundImage = Resources.play;
+                        EnableConvert(true);
                     }
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(this, "Impossible to get URL from YouTube.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Logger.WriteError(ex.Message);
                 }
             }
             txtURL.Enabled = true;
@@ -492,10 +580,11 @@ namespace YT2MP3
             }
         }
 
+        bool error = false;
+        string errorMsg = string.Empty;
         private void Download()
         {
             Thread thread;
-            bool error = false;
 
             while (true)
             {
@@ -511,7 +600,7 @@ namespace YT2MP3
                     thread = new Thread(new ParameterizedThreadStart(UpdateLabel));
                     thread.Start(string.Format("Converting and downloading: {0}/{1}", count, listCount));
 
-                    string command = Commands.BuildCommandLine(executablePath, commandsList, vi.URL);
+                    string command = BuildCommandLine(executablePath, commandsList, vi.URL);
 
                     ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", $"{command}");
 
@@ -523,11 +612,11 @@ namespace YT2MP3
                     using (Process process = new Process())
                     {
                         process.StartInfo = procStartInfo;
+                        process.OutputDataReceived += new DataReceivedEventHandler(OutputDataHandler);
                         process.Start();
-                        
+                        process.BeginOutputReadLine();
                         process.WaitForExit();
-
-                        error = !string.IsNullOrEmpty(process.StandardError.ReadToEnd());
+                        process.OutputDataReceived -= OutputDataHandler;
                     }
 
                     count++;
@@ -539,7 +628,10 @@ namespace YT2MP3
                     history.AddToHistory(vi);
 
                     if (hisPanel != null)
-                        hisPanel.PopulateList(history.HistoryList);
+                        this.Invoke(new Action(() =>
+                        {
+                            hisPanel.PopulateList(history.HistoryList);
+                        }));
                 }
 
                 workingList.Clear();
@@ -557,30 +649,61 @@ namespace YT2MP3
                 }
             }
             converting = false;
+            commandsList = new CommandList();
 
             thread = new Thread(new ParameterizedThreadStart(UpdateLabel));
             string labelResult = string.Empty;
             if (!error)
-                labelResult = "Conversion complete. File downloaded.";
+                labelResult = "Conversion completed.";
             else
             {
                 if (executablePath.Contains(" "))
                     labelResult = "ERROR! Program path contains white spaces.";
                 else
-                    labelResult = "Error occurred during file download.";
+                    labelResult = $"Conversion completed with errors: {errorMsg}";
             }
 
             thread.Start(labelResult);
 
             this.Invoke(new Action(() =>
             {
-                btnConvert.Enabled = false;
-                btnConvert.BackgroundImage = Resources.play_disabled;
+                EnableConvert(false);
+                flpSettings.Enabled = true;
                 flpDestination.Enabled = true;
             }));
 
             listCount = 0;
             count = 1;
+            error = false;
+        }
+
+        void OutputDataHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        {
+            if (outLine.Data != null)
+            {
+                if (outLine.Data.Contains("%"))
+                {
+                    //string test = outLine.Data.Substring(10, outLine.Data.IndexOf("%") + 1).Trim();
+                    string test = outLine.Data.Substring(10, outLine.Data.IndexOf("%") - 10).Trim();
+                    int progress = (int)float.Parse(test);
+                    if (test.Contains("100"))
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            progBar.Visible = false;
+                            lblUpdate.Visible = true;
+                            lblClipboard.Visible = false;
+                            lblUpdate.Text = $"Download completed. Converting file: {count}/{listCount}";
+                        }));
+                    } else
+                        UpdateProgressBar(progress, outLine.Data);
+                }
+                if (outLine.Data.ToLower().Contains("exception"))
+                {
+                    error = true;
+                    errorMsg = outLine.Data;
+                }
+            }
         }
         #endregion
 
@@ -721,6 +844,23 @@ namespace YT2MP3
             this.Invoke(new Action(() =>
             {
                 lblUpdate.Text = text.ToString();
+            }));
+        }
+
+        void UpdateProgressBar(int value, string text = null)
+        {
+            this.Invoke(new Action(() =>
+            {
+                if (!progBar.Visible)
+                {
+                    lblUpdate.Visible = false;
+                    progBar.Visible = true;
+                    if (!string.IsNullOrEmpty(text))
+                        lblClipboard.Visible = true;
+                }
+                progBar.Value = value;
+                if (!string.IsNullOrEmpty(text))
+                    lblClipboard.Text = text.Substring(10, text.IndexOf("ETA") - 10).Trim();
             }));
         }
         #endregion
