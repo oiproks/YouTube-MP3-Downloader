@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace YT2MP3.Various
 {
@@ -14,7 +10,8 @@ namespace YT2MP3.Various
 
         static public void WriteError(string log, bool newDay = false)
         {
-            if (string.IsNullOrEmpty(today) || !today.Equals(DateTime.Now.ToString("yyyy-MM-dd"))) {
+            if (string.IsNullOrEmpty(today) || !today.Equals(DateTime.Now.ToString("yyyy-MM-dd")))
+            {
                 today = DateTime.Now.ToString("yyyy-MM-dd");
                 WriteError(today + Environment.NewLine, true);
             }

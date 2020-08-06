@@ -12,9 +12,8 @@ using System.Threading;
 using System.Web;
 using System.Windows.Forms;
 using YT2MP3.Properties;
-using YT2MP3.Statics;
 using YT2MP3.Various;
-using static YT2MP3.Statics.Commands;
+using static YT2MP3.Various.Commands;
 
 namespace YT2MP3
 {
@@ -38,7 +37,7 @@ namespace YT2MP3
         public MainPanel()
         {
             InitializeComponent();
-        
+
             // Testing
             this.DoubleBuffered = true;
             this.SetStyle(ControlStyles.ResizeRedraw, true);
@@ -71,7 +70,7 @@ namespace YT2MP3
         }
         #endregion
 
-        #region Resizing and Dragging
+        #region Interface Interactions
         bool mouseDown = false;
         Point lastLocation;
         private void Interface_MouseDown(object sender, MouseEventArgs e)
@@ -119,7 +118,8 @@ namespace YT2MP3
                 {
                     if (Location.X + Width + 10 >= hisPanel.Location.X || Location.X + Width - 10 <= hisPanel.Location.X)
                         hisPanel.Location = new Point(Location.X + Width + 10, hisPanel.Location.Y);
-                } else
+                }
+                else
                 {
                     if (hisPanel.Location.X + hisPanel.Width + 10 >= Location.X || hisPanel.Location.X + hisPanel.Width - 10 <= Location.X)
                         hisPanel.Location = new Point(Location.X - 10 - hisPanel.Width, hisPanel.Location.Y);
@@ -133,30 +133,43 @@ namespace YT2MP3
             {
                 Point pos = new Point(m.LParam.ToInt32());
                 pos = this.PointToClient(pos);
-                
+
                 if (pos.X <= cBorder)
                 {
                     m.Result = (IntPtr)10; // Left border
                     return;
-                } else if (pos.X >= this.ClientSize.Width - cBorder && pos.Y <= this.ClientSize.Height - cGrip)
+                }
+                else if (pos.X >= this.ClientSize.Width - cBorder && pos.Y <= this.ClientSize.Height - cGrip)
                 {
                     m.Result = (IntPtr)11; // Right border
                     return;
-                } else if (pos.X <= this.ClientSize.Width - cGrip && pos.Y >= this.ClientSize.Height - cBorder)
+                }
+                else if (pos.X <= this.ClientSize.Width - cGrip && pos.Y >= this.ClientSize.Height - cBorder)
                 {
                     m.Result = (IntPtr)15; // Bottom border
                     return;
-                } else if (pos.Y <= cBorder)
+                }
+                else if (pos.Y <= cBorder)
                 {
                     m.Result = (IntPtr)12; // Bottom border
                     return;
-                } else if (pos.X >= this.ClientSize.Width - cGrip && pos.Y >= this.ClientSize.Height - cGrip)
+                }
+                else if (pos.X >= this.ClientSize.Width - cGrip && pos.Y >= this.ClientSize.Height - cGrip)
                 {
                     m.Result = (IntPtr)17; // Bottom Right Corner
                     return;
                 }
             }
             base.WndProc(ref m);
+        }
+
+        private void mainPanel_Activated(object sender, EventArgs e)
+        {
+            if (hisPanel != null && !hisPanel.showing)
+            {
+                hisPanel.Activate();
+                this.Focus();
+            }
         }
         #endregion
 
@@ -256,7 +269,7 @@ namespace YT2MP3
                 lblDestination.Text = Utils.SetDestinationPath(dialog.FileName, out destinationPath);
 
                 if (urlList.Count > 0 && (chkAudio.Checked || chkVideo.Checked))
-                        EnableConvert(true);
+                    EnableConvert(true);
             }
         }
 
@@ -341,7 +354,8 @@ namespace YT2MP3
                 hisPanel.TopMost = TopMost;
                 hisPanel.Owner = this;
                 hisPanel.Show();
-            } else
+            }
+            else
             {
                 hisPanel.Close();
                 hisPanel = null;
@@ -695,7 +709,8 @@ namespace YT2MP3
                             lblClipboard.Visible = false;
                             lblUpdate.Text = $"Download completed. Converting file: {count}/{listCount}";
                         }));
-                    } else
+                    }
+                    else
                         UpdateProgressBar(progress, outLine.Data);
                 }
                 if (outLine.Data.ToLower().Contains("exception"))
@@ -717,7 +732,7 @@ namespace YT2MP3
         {
             if (converting && lstBox.SelectedIndex == 0)
                 return;
-            else 
+            else
             {
                 int selectedIndex = lstBox.SelectedIndex;
                 removeList.Add(new VideoInfos(lstBox.Items[selectedIndex].ToString(), ""));
@@ -754,7 +769,7 @@ namespace YT2MP3
             Thread thread = new Thread(new ParameterizedThreadStart(PopUp));
             thread.Start(popUpText);
         }
-        
+
         private void OpenInBrowser(object sender, EventArgs e)
         {
             if (lstBox.SelectedIndex >= 0)
@@ -879,14 +894,5 @@ namespace YT2MP3
             txtURL.Text = e.Data.GetData(DataFormats.Text).ToString();
         }
         #endregion
-
-        private void mainPanel_Activated(object sender, EventArgs e)
-        {
-            if (hisPanel != null && !hisPanel.showing)
-            {
-                hisPanel.Activate();
-                this.Focus();
-            }
-        }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography.X509Certificates;
 using YT2MP3.Various;
 
 namespace YT2MP3
@@ -16,7 +15,8 @@ namespace YT2MP3
         {
             HistoryList = new List<VideoInfos>();
 
-            if (File.Exists(path)) {
+            if (File.Exists(path))
+            {
                 try
                 {
                     var lines = File.ReadLines(path);
@@ -27,7 +27,8 @@ namespace YT2MP3
                             line.Split(new string[] { "|||" }, StringSplitOptions.None)[1])
                         );
                     }
-                } catch
+                }
+                catch
                 {
                     File.Delete(path);
                     File.Create(path).Close();
@@ -35,13 +36,13 @@ namespace YT2MP3
             }
         }
 
-        public void AddToHistory(VideoInfos vi) 
+        public void AddToHistory(VideoInfos vi)
         {
             if (HistoryList.Find(x => x.Title == vi.Title) == null && HistoryList.Find(x => x.URL == vi.URL) == null)
             {
                 HistoryList.Add(vi);
                 File.AppendAllText(path, CreateLine(vi));
-                
+
             }
             Logger.WriteSuccess($"{vi.Title} | ({vi.URL})");
         }

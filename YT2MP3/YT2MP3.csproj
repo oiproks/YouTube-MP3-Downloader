@@ -115,7 +115,7 @@
     </Compile>
     <Compile Include="Various\Logger.cs" />
     <Compile Include="Objects\VideoFormats.cs" />
-    <Compile Include="Various\CommandList.cs" />
+    <Compile Include="Objects\CommandList.cs" />
     <Compile Include="Various\Commands.cs" />
     <Compile Include="Objects\AudioFormats.cs" />
     <Compile Include="Various\Parameter.cs" />

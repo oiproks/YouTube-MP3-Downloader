@@ -150,7 +150,8 @@ namespace YT2MP3
                 Clipboard.SetText(URL);
 
                 popUpText = "URL copied to clipboard";
-            } else
+            }
+            else
                 popUpText = "Nothing selected";
 
             Thread thread = new Thread(new ParameterizedThreadStart(PopUp));

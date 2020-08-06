@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace YT2MP3.Various
+﻿namespace YT2MP3.Various
 {
     public class Parameter
     {
         public AudioFormats audioFormat { get; set; }
-        
+
         public VideoFormats videoFormat { get; set; }
 
         public int quality { get; set; }

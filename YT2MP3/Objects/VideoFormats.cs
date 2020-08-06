@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace YT2MP3.Various
 {
@@ -17,7 +13,7 @@ namespace YT2MP3.Various
         public static VideoFormats P1440 { get { return new VideoFormats("1440"); } }
 
         public static VideoFormats P1080 { get { return new VideoFormats("1080"); } }
-        
+
         public static VideoFormats P720 { get { return new VideoFormats("720"); } }
 
         public static VideoFormats P480 { get { return new VideoFormats("480"); } }

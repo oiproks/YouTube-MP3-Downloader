@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static YT2MP3.Statics.Commands;
+using static YT2MP3.Various.Commands;
 
 namespace YT2MP3.Various
 {

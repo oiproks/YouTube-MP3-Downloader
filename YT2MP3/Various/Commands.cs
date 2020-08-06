@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using YT2MP3.Various;
 
-namespace YT2MP3.Statics
+namespace YT2MP3.Various
 {
     public class Commands
     {
@@ -52,29 +47,33 @@ namespace YT2MP3.Statics
             return line += $" {URL}";
         }
 
-        internal static string NoPlaylist { 
+        internal static string NoPlaylist
+        {
             get { return " --no-playlist"; }
         }
 
-        internal static string ExtractAudio { 
+        internal static string ExtractAudio
+        {
             get { return " --extract-audio"; }
         }
-        
+
         /// <summary>
         /// Select audio conversion format
         /// </summary>
         /// <param name="format"></param>
         /// <returns></returns>
-        internal static string AudioFormat(AudioFormats format) {
+        internal static string AudioFormat(AudioFormats format)
+        {
             return $" --audio-format {format.Value}";
         }
-        
+
         /// <summary>
         /// Select conversion quality.
         /// </summary>
         /// <param name="quality">int from 0 (high quality) to 9 (low quality)</param>
         /// <returns></returns>
-        internal static string AudioQuality(int quality) {
+        internal static string AudioQuality(int quality)
+        {
             return $" --audio-quality {quality}";
         }
 
@@ -83,7 +82,8 @@ namespace YT2MP3.Statics
         /// </summary>
         /// <param name="format"></param>
         /// <returns></returns>
-        internal static string VideoFormat(VideoFormats format) {
+        internal static string VideoFormat(VideoFormats format)
+        {
             return $" -f \"bestvideo[height<=?{format.Value}]+bestaudio/best\"";
         }
 
@@ -92,7 +92,8 @@ namespace YT2MP3.Statics
         /// </summary>
         /// <param name="fileName">filename with path</param>
         /// <returns></returns>
-        internal static string Output(string fileName) {
+        internal static string Output(string fileName)
+        {
             return $" -o \"{fileName}\"";
         }
 
@@ -100,7 +101,8 @@ namespace YT2MP3.Statics
         /// Download Playlist.
         /// </summary>
         /// <returns></returns>
-        internal static string Playlist() {
+        internal static string Playlist()
+        {
             return $" --yes-playlist";
         }
     }
