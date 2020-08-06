@@ -22,5 +22,7 @@ The program makes use of [youtube-dl](https://github.com/ytdl-org/youtube-dl/).
 The application is available for download from [HERE](https://github.com/oiproks/YouTube-MP3-Downloader/blob/master/Contents/YouTube-MP3-Downloader.zip?raw=true) (_Right Click + Save As_)
 
 ## Screenshots
+>*(Not updated. The interface is slightly different and improved).*
+
 ![Screenshots](/Contents/Screen.png)
 ![Screenshots](/Contents/Screen_1.png)
