@@ -38,7 +38,7 @@ namespace YT2MP3
         {
             InitializeComponent();
 
-            // Testing
+            // Smooth moving and resizing
             this.DoubleBuffered = true;
             this.SetStyle(ControlStyles.ResizeRedraw, true);
         }
